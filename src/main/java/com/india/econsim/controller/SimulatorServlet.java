@@ -264,8 +264,6 @@ public class SimulatorServlet extends HttpServlet {
 
         map.put("hospitalBedsPer1000", s.getHospitalBedsPer1000());
         map.put("publicHealthReadinessIndex", s.getPublicHealthReadinessIndex());
-        map.put("gasolinePrices", s.getGasolinePrices());
-        map.put("moneySupplyM1", s.getMoneySupplyM1());
         return map;
     }
 
