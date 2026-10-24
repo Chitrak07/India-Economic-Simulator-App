@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.india.econsim.model.EconomyState" %>
+<%@ page import="com.india.econsim.service.BacktestResult" %>
 <%@ page import="com.india.econsim.service.RealityCheckService" %>
 <%@ page import="java.util.List" %>
 <%
@@ -338,6 +339,38 @@
             <button type="submit" name="action" value="checkReality" class="b-cwr" title="FY2015-16 → 2016-17 Backtest vs CSO/RBI Actuals">🔬 Check With Reality</button>
             <button type="submit" name="action" value="reset" class="b-rst">Reset</button>
         </div>
+
+        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
+            <h3 style="margin:0 0 8px 0;font-size:0.82rem;text-transform:uppercase;color:#a78bfa;border-bottom:1px solid var(--border);padding-bottom:6px;">
+                ⏳ Time Machine Backtest
+            </h3>
+            <p style="font-size:0.76rem;color:var(--muted);margin:0 0 10px 0;line-height:1.45;">
+                Fetch 20 years of World Bank data, pick a baseline year, and see how accurately the engine forecasts the following year's GDP, inflation &amp; unemployment vs. reality.
+            </p>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
+                <label style="font-size:0.78rem;color:var(--muted);white-space:nowrap;">Baseline Year:</label>
+                <select name="tmYear" style="flex:1;background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:0.82rem;">
+                    <option value="2010">2010 → 2011</option>
+                    <option value="2013">2013 → 2014</option>
+                    <option value="2015" selected>2015 → 2016 (Demonetisation)</option>
+                    <option value="2018">2018 → 2019</option>
+                    <option value="2019">2019 → 2020 (COVID shadow)</option>
+                </select>
+            </div>
+            <div class="btn-group" style="margin-top:0;">
+                <button type="submit" name="action" value="fetchHistory"
+                        style="flex:1;padding:8px;border:none;border-radius:5px;font-weight:700;cursor:pointer;color:#fff;background:#7c3aed;font-size:0.78rem;"
+                        title="Download 20 years of India data from World Bank API (requires internet)">
+                    🌐 Fetch WB Data
+                </button>
+                <button type="submit" name="action" value="timeMachine"
+                        style="flex:1;padding:8px;border:none;border-radius:5px;font-weight:700;cursor:pointer;color:#fff;background:#0891b2;font-size:0.78rem;"
+                        title="Run Time Machine backtest for the selected year">
+                    🕰️ Run Backtest
+                </button>
+            </div>
+        </div>
+
     </form>
 
     <!-- RIGHT AREA: ALL 11 TRADING ECONOMICS TABS WITH DELTA & CAUSAL CLICK -->
@@ -899,6 +932,104 @@ const indicatorReasons = {
         </div>
         <div style="text-align:right;margin-top:14px;">
             <button onclick="document.getElementById('realityModalOverlay').style.display='none'" style="background:#475569;color:#fff;border:none;border-radius:5px;padding:7px 18px;font-weight:700;cursor:pointer;">Close</button>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<!-- 5. TIME MACHINE BACKTEST RESULT MODAL -->
+<%
+    String tmMessage = (String) request.getAttribute("tmMessage");
+    BacktestResult timeMachineResult = (BacktestResult) request.getAttribute("timeMachineResult");
+%>
+<% if (tmMessage != null) { %>
+<div id="tmToast" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid #7c3aed;border-radius:8px;padding:12px 22px;z-index:10003;font-size:0.87rem;box-shadow:0 8px 24px rgba(0,0,0,0.7);max-width:600px;text-align:center;">
+    <%= tmMessage %>
+    <span onclick="document.getElementById('tmToast').style.display='none'" style="margin-left:14px;cursor:pointer;color:var(--muted);font-size:1rem;">&#x2715;</span>
+</div>
+<% } %>
+
+<% if (timeMachineResult != null) { %>
+<div id="tmModalOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.78);z-index:10002;align-items:center;justify-content:center;">
+    <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #0891b2;border-radius:10px;width:820px;max-width:95%;max-height:88vh;overflow-y:auto;padding:22px;box-shadow:0 15px 40px rgba(0,0,0,0.9);">
+
+        <h3 style="margin-top:0;color:#0891b2;font-size:1.05rem;">
+            ⏳ Time Machine Backtest — <%= timeMachineResult.baselineYear %> &rarr; <%= timeMachineResult.targetYear %>
+        </h3>
+
+        <div style="background:rgba(8,145,178,0.1);border-left:4px solid #0891b2;padding:10px 14px;border-radius:5px;margin-bottom:16px;font-size:0.83rem;line-height:1.5;">
+            <%= timeMachineResult.summary %>
+        </div>
+
+        <!-- Accuracy score bar -->
+        <%
+            double acc = timeMachineResult.meanAccuracyPct;
+            String accColor = acc >= 90 ? "#22c55e" : acc >= 75 ? "#fbbf24" : "#ef4444";
+        %>
+        <div style="margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin-bottom:4px;">
+                <span>Mean Model Accuracy</span>
+                <span style="font-weight:700;color:<%= accColor %>;"><%= String.format("%.1f", acc) %>%</span>
+            </div>
+            <div style="background:#1e293b;border-radius:99px;height:8px;overflow:hidden;">
+                <div style="height:100%;width:<%= Math.max(0, Math.min(100, acc)) %>%;background:<%= accColor %>;border-radius:99px;transition:width 0.5s;"></div>
+            </div>
+        </div>
+
+        <!-- Per-indicator rows -->
+        <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
+            <thead>
+                <tr style="background:#1e293b;">
+                    <th style="padding:9px;text-align:left;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Indicator</th>
+                    <th style="padding:9px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">World Bank Actual</th>
+                    <th style="padding:9px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Simulated</th>
+                    <th style="padding:9px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Abs. Error</th>
+                    <th style="padding:9px;text-align:center;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Verdict</th>
+                </tr>
+            </thead>
+            <tbody>
+            <% for (BacktestResult.IndicatorResult row : timeMachineResult.rows) {
+                String rowBg   = "PASS".equals(row.verdict) ? "rgba(34,197,94,0.07)" :
+                                 "WARN".equals(row.verdict) ? "rgba(251,191,36,0.07)" : "rgba(239,68,68,0.07)";
+                String vColor  = "PASS".equals(row.verdict) ? "#22c55e" :
+                                 "WARN".equals(row.verdict) ? "#fbbf24" : "#ef4444";
+                String vIcon   = "PASS".equals(row.verdict) ? "&#10003; PASS" :
+                                 "WARN".equals(row.verdict) ? "&#9888; WARN" : "&#10007; FAIL";
+            %>
+                <tr style="background:<%= rowBg %>;border-bottom:1px solid #1e293b;">
+                    <td style="padding:9px;color:#f8fafc;">
+                        <%= row.indicatorName %>
+                        <div style="font-size:0.72rem;color:#64748b;margin-top:1px;"><%= row.note %></div>
+                    </td>
+                    <td style="padding:9px;text-align:right;font-weight:700;color:#fff;">
+                        <%= String.format("%.2f", row.actualValue) %>
+                        <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span>
+                    </td>
+                    <td style="padding:9px;text-align:right;font-weight:700;color:#38bdf8;">
+                        <%= String.format("%.2f", row.simulatedValue) %>
+                        <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span>
+                    </td>
+                    <td style="padding:9px;text-align:right;color:<%= vColor %>;font-weight:700;">
+                        <%= String.format("%.1f", row.absoluteErrorPct) %>%%
+                    </td>
+                    <td style="padding:9px;text-align:center;font-weight:700;color:<%= vColor %>;font-size:0.8rem;">
+                        <%= vIcon %>
+                    </td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+
+        <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-size:0.73rem;color:#64748b;line-height:1.5;">
+                Source: World Bank Open Data API v2 &bull;
+                PASS&nbsp;&#8804;&nbsp;5%% error &bull; WARN&nbsp;&#8804;&nbsp;15%% &bull; FAIL&nbsp;&gt;&nbsp;15%%<br>
+                Note: WB uses ILO modelled unemployment estimates which differ from CMIE/PLFS figures used in engine calibration.
+            </div>
+            <button onclick="document.getElementById('tmModalOverlay').style.display='none'"
+                    style="background:#475569;color:#fff;border:none;border-radius:5px;padding:7px 18px;font-weight:700;cursor:pointer;white-space:nowrap;margin-left:16px;">
+                Close
+            </button>
         </div>
     </div>
 </div>

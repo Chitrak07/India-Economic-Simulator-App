@@ -1,8 +1,11 @@
 package com.india.econsim.controller;
 
 import com.india.econsim.model.EconomyState;
-import com.india.econsim.service.SimulationEngine;
+import com.india.econsim.service.BacktestResult;
+import com.india.econsim.service.HistoricalDataFetcher;
 import com.india.econsim.service.RealityCheckService;
+import com.india.econsim.service.SimulationEngine;
+import com.india.econsim.service.TimeMachineTestService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,15 +15,22 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.Serial;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 @WebServlet(name = "SimulatorServlet", urlPatterns = {"/simulate"})
 public class SimulatorServlet extends HttpServlet {
     @Serial
     private static final long serialVersionUID = -6852783344442364087L;
+
+    private static final Logger LOG = Logger.getLogger(SimulatorServlet.class.getName());
+
+    /** Resolved once at first use — works both from project root and from target/ */
+    private static final Path HISTORY_FILE = Path.of("src/main/resources/india_historical_economy.json");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -59,6 +69,53 @@ public class SimulatorServlet extends HttpServlet {
             EconomyState econ = (EconomyState) session.getAttribute("econ");
             if (econ == null) econ = new EconomyState();
             session.setAttribute("econ", econ);
+            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+            return;
+        }
+
+        // Handle Time Machine backtest — fetch data on demand then run backtest
+        if ("fetchHistory".equals(action)) {
+            try {
+                HistoricalDataFetcher.fetchAndSave(HISTORY_FILE);
+                req.setAttribute("tmMessage", "✅ World Bank data fetched successfully! You can now run a Time Machine backtest below.");
+            } catch (HistoricalDataFetcher.HistoricalDataException e) {
+                LOG.warning("History fetch failed: " + e.getMessage());
+                req.setAttribute("tmMessage", "❌ Fetch failed: " + e.getMessage() + ". Check network connectivity and retry.");
+            }
+            EconomyState econ = (EconomyState) session.getAttribute("econ");
+            if (econ == null) econ = new EconomyState();
+            session.setAttribute("econ", econ);
+            req.setAttribute("activeTab", activeTab);
+            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+            return;
+        }
+
+        if ("timeMachine".equals(action)) {
+            int baselineYear = 2015;
+            try {
+                String yearParam = req.getParameter("tmYear");
+                if (yearParam != null && !yearParam.isEmpty()) {
+                    baselineYear = Integer.parseInt(yearParam);
+                }
+            } catch (NumberFormatException ignored) {}
+
+            try {
+                EconomyState seed = TimeMachineTestService.seedBaselineState(baselineYear);
+                BacktestResult result = TimeMachineTestService.runBacktest(seed, baselineYear, HISTORY_FILE);
+                req.setAttribute("timeMachineResult", result);
+            } catch (HistoricalDataFetcher.HistoricalDataException e) {
+                LOG.warning("Time machine backtest failed: " + e.getMessage());
+                req.setAttribute("tmMessage",
+                    "❌ Could not run backtest: " + e.getMessage() +
+                    ". Click '🌐 Fetch World Bank Data' first.");
+            } catch (IllegalArgumentException e) {
+                req.setAttribute("tmMessage", "❌ Invalid year: " + e.getMessage());
+            }
+
+            EconomyState econ = (EconomyState) session.getAttribute("econ");
+            if (econ == null) econ = new EconomyState();
+            session.setAttribute("econ", econ);
+            req.setAttribute("activeTab", activeTab);
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
             return;
         }

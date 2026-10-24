@@ -35,7 +35,6 @@ public class RealityCheckService {
     /**
      * Seeds FY 2015-16 actuals as baseline, applies FY 2016-17 policy regime,
      * advances 4 quarters, then compares simulated outputs to CSO/RBI actuals.
-     *
      * Sources:
      *  GDP growth  : CSO First Advance Estimate — 7.1% (FY2016-17)
      *  CPI         : RBI Annual Report — 4.5% avg (FY2016-17)

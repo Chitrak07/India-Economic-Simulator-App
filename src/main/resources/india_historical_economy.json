@@ -1,0 +1,269 @@
+{
+  "metadata": {
+    "country": "IND",
+    "countryName": "India",
+    "yearRange": "2006-2026",
+    "source": "World Bank Open Data API v2",
+    "fetchedAt": "2026-10-24T22:43:13.225054900Z"
+  },
+  "indicators": {
+    "gdpGrowthPct": {
+      "worldBankCode": "NY.GDP.MKTP.KD.ZG",
+      "description": "Real GDP Growth (%)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 8.0607
+        },
+        {
+          "year": 2007,
+          "value": 7.6608
+        },
+        {
+          "year": 2008,
+          "value": 3.0867
+        },
+        {
+          "year": 2009,
+          "value": 7.8619
+        },
+        {
+          "year": 2010,
+          "value": 8.4976
+        },
+        {
+          "year": 2011,
+          "value": 5.2413
+        },
+        {
+          "year": 2012,
+          "value": 5.4564
+        },
+        {
+          "year": 2013,
+          "value": 6.3861
+        },
+        {
+          "year": 2014,
+          "value": 7.4102
+        },
+        {
+          "year": 2015,
+          "value": 7.9963
+        },
+        {
+          "year": 2016,
+          "value": 8.2563
+        },
+        {
+          "year": 2017,
+          "value": 6.7954
+        },
+        {
+          "year": 2018,
+          "value": 6.4539
+        },
+        {
+          "year": 2019,
+          "value": 3.8714
+        },
+        {
+          "year": 2020,
+          "value": -5.7777
+        },
+        {
+          "year": 2021,
+          "value": 9.6896
+        },
+        {
+          "year": 2022,
+          "value": 7.6094
+        },
+        {
+          "year": 2023,
+          "value": 7.2102
+        },
+        {
+          "year": 2024,
+          "value": 7.0993
+        },
+        {
+          "year": 2025,
+          "value": 7.5667
+        }
+      ]
+    },
+    "cpiInflationPct": {
+      "worldBankCode": "FP.CPI.TOTL.ZG",
+      "description": "CPI Inflation Rate (%)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 5.7965
+        },
+        {
+          "year": 2007,
+          "value": 6.3729
+        },
+        {
+          "year": 2008,
+          "value": 8.3493
+        },
+        {
+          "year": 2009,
+          "value": 10.8824
+        },
+        {
+          "year": 2010,
+          "value": 11.9894
+        },
+        {
+          "year": 2011,
+          "value": 8.9118
+        },
+        {
+          "year": 2012,
+          "value": 9.479
+        },
+        {
+          "year": 2013,
+          "value": 10.0179
+        },
+        {
+          "year": 2014,
+          "value": 6.6657
+        },
+        {
+          "year": 2015,
+          "value": 4.907
+        },
+        {
+          "year": 2016,
+          "value": 4.9482
+        },
+        {
+          "year": 2017,
+          "value": 3.3282
+        },
+        {
+          "year": 2018,
+          "value": 3.9388
+        },
+        {
+          "year": 2019,
+          "value": 3.7295
+        },
+        {
+          "year": 2020,
+          "value": 6.6234
+        },
+        {
+          "year": 2021,
+          "value": 5.1314
+        },
+        {
+          "year": 2022,
+          "value": 6.699
+        },
+        {
+          "year": 2023,
+          "value": 5.6491
+        },
+        {
+          "year": 2024,
+          "value": 4.953
+        },
+        {
+          "year": 2025,
+          "value": 2.3988
+        }
+      ]
+    },
+    "unemploymentPct": {
+      "worldBankCode": "SL.UEM.TOTL.ZS",
+      "description": "Unemployment Rate (%)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 7.553
+        },
+        {
+          "year": 2007,
+          "value": 7.562
+        },
+        {
+          "year": 2008,
+          "value": 7.629
+        },
+        {
+          "year": 2009,
+          "value": 7.636
+        },
+        {
+          "year": 2010,
+          "value": 7.631
+        },
+        {
+          "year": 2011,
+          "value": 7.609
+        },
+        {
+          "year": 2012,
+          "value": 7.645
+        },
+        {
+          "year": 2013,
+          "value": 7.678
+        },
+        {
+          "year": 2014,
+          "value": 7.656
+        },
+        {
+          "year": 2015,
+          "value": 7.629
+        },
+        {
+          "year": 2016,
+          "value": 7.611
+        },
+        {
+          "year": 2017,
+          "value": 7.626
+        },
+        {
+          "year": 2018,
+          "value": 7.652
+        },
+        {
+          "year": 2019,
+          "value": 6.51
+        },
+        {
+          "year": 2020,
+          "value": 7.859
+        },
+        {
+          "year": 2021,
+          "value": 6.38
+        },
+        {
+          "year": 2022,
+          "value": 4.822
+        },
+        {
+          "year": 2023,
+          "value": 4.172
+        },
+        {
+          "year": 2024,
+          "value": 4.173
+        },
+        {
+          "year": 2025,
+          "value": 4.219
+        }
+      ]
+    }
+  }
+}
