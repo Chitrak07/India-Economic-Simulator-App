@@ -209,7 +209,7 @@
         </div>
         <div class="slider-row">
             <label><span>Personal Income Tax Rate</span><strong id="lbl_pit"><%= econ.getPersonalIncomeTaxRate() %>%</strong></label>
-            <input type="range" name="personalIncomeTaxRate" min="15" max="50" step="0.5"
+            <input type="range" name="personalIncomeTaxRate" min="5" max="40" step="0.5"
                    data-baseline="<%= econ.getPersonalIncomeTaxRate() %>" value="<%= econ.getPersonalIncomeTaxRate() %>"
                    oninput="onPolicyAdjust('personalIncomeTaxRate', this, '%')">
         </div>
