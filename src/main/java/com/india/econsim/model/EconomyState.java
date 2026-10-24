@@ -40,7 +40,8 @@ public class EconomyState implements Serializable {
     // --- 2. ALL 11 TAB INDICATORS ---
     // GDP Tab — NSO Second Advance Estimate FY2025-26 (Feb 2026)
     private double gdpGrowthRate = 1.60;              // % QoQ Q3 FY26
-    private double gdpAnnualGrowthRate = 6.50;        // % NSO 2nd AE FY2025-26
+    private double gdpAnnualGrowthRate = 6.50;        // % real YoY NSO 2nd AE FY2025-26
+    private double nominalGdpGrowthRate = 9.70;       // % nominal YoY (real + GDP deflator ~3.2%)
     private double fullYearGdpGrowth = 6.50;          // % same
     private double gdpUsdBillion = 4187.0;            // USD bn (₹353L cr / 84.3)
     private double gdpConstantPrices = 184.88;        // ₹ Lakh Cr at 2011-12 prices
@@ -228,6 +229,8 @@ public class EconomyState implements Serializable {
     public void setGdpGrowthRate(double gdpGrowthRate) { this.gdpGrowthRate = gdpGrowthRate; }
     public double getGdpAnnualGrowthRate() { return gdpAnnualGrowthRate; }
     public void setGdpAnnualGrowthRate(double gdpAnnualGrowthRate) { this.gdpAnnualGrowthRate = gdpAnnualGrowthRate; }
+    public double getNominalGdpGrowthRate() { return nominalGdpGrowthRate; }
+    public void setNominalGdpGrowthRate(double nominalGdpGrowthRate) { this.nominalGdpGrowthRate = nominalGdpGrowthRate; }
     public double getFullYearGdpGrowth() { return fullYearGdpGrowth; }
     public void setFullYearGdpGrowth(double fullYearGdpGrowth) { this.fullYearGdpGrowth = fullYearGdpGrowth; }
     public double getGdpUsdBillion() { return gdpUsdBillion; }

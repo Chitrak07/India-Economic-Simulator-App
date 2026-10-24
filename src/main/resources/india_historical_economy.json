@@ -4,7 +4,7 @@
     "countryName": "India",
     "yearRange": "2006-2026",
     "source": "World Bank Open Data API v2",
-    "fetchedAt": "2026-10-24T22:43:13.225054900Z"
+    "fetchedAt": "2026-10-24T23:21:42.721330900Z"
   },
   "indicators": {
     "gdpGrowthPct": {
@@ -262,6 +262,896 @@
         {
           "year": 2025,
           "value": 4.219
+        }
+      ]
+    },
+    "gdpUsdBillion": {
+      "worldBankCode": "NY.GDP.MKTP.CD",
+      "description": "GDP (current USD)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 9.40259888787721E11
+        },
+        {
+          "year": 2007,
+          "value": 1.21673643883496E12
+        },
+        {
+          "year": 2008,
+          "value": 1.19889513900592E12
+        },
+        {
+          "year": 2009,
+          "value": 1.3418880169949E12
+        },
+        {
+          "year": 2010,
+          "value": 1.67561551948496E12
+        },
+        {
+          "year": 2011,
+          "value": 1.82305182989455E12
+        },
+        {
+          "year": 2012,
+          "value": 1.82763759041041E12
+        },
+        {
+          "year": 2013,
+          "value": 1.85672150762158E12
+        },
+        {
+          "year": 2014,
+          "value": 2.03912647915452E12
+        },
+        {
+          "year": 2015,
+          "value": 2.10358836004494E12
+        },
+        {
+          "year": 2016,
+          "value": 2.29479688566316E12
+        },
+        {
+          "year": 2017,
+          "value": 2.65147426275545E12
+        },
+        {
+          "year": 2018,
+          "value": 2.70292964164874E12
+        },
+        {
+          "year": 2019,
+          "value": 2.83560625655819E12
+        },
+        {
+          "year": 2020,
+          "value": 2.67485157858727E12
+        },
+        {
+          "year": 2021,
+          "value": 3.16727062326047E12
+        },
+        {
+          "year": 2022,
+          "value": 3.24993849201347E12
+        },
+        {
+          "year": 2023,
+          "value": 3.50090603064476E12
+        },
+        {
+          "year": 2024,
+          "value": 3.76081347050086E12
+        },
+        {
+          "year": 2025,
+          "value": 3.9560671157716294E12
+        }
+      ]
+    },
+    "gdpPerCapitaUsd": {
+      "worldBankCode": "NY.GDP.PCAP.CD",
+      "description": "GDP per Capita (current USD)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 801.6684
+        },
+        {
+          "year": 2007,
+          "value": 1021.8871
+        },
+        {
+          "year": 2008,
+          "value": 992.5196
+        },
+        {
+          "year": 2009,
+          "value": 1094.9497
+        },
+        {
+          "year": 2010,
+          "value": 1347.5194
+        },
+        {
+          "year": 2011,
+          "value": 1445.4613
+        },
+        {
+          "year": 2012,
+          "value": 1429.322
+        },
+        {
+          "year": 2013,
+          "value": 1432.844
+        },
+        {
+          "year": 2014,
+          "value": 1553.884
+        },
+        {
+          "year": 2015,
+          "value": 1583.9982
+        },
+        {
+          "year": 2016,
+          "value": 1707.5089
+        },
+        {
+          "year": 2017,
+          "value": 1950.1047
+        },
+        {
+          "year": 2018,
+          "value": 1966.2546
+        },
+        {
+          "year": 2019,
+          "value": 2041.4286
+        },
+        {
+          "year": 2020,
+          "value": 1907.0425
+        },
+        {
+          "year": 2021,
+          "value": 2239.6138
+        },
+        {
+          "year": 2022,
+          "value": 2279.9815
+        },
+        {
+          "year": 2023,
+          "value": 2434.4483
+        },
+        {
+          "year": 2024,
+          "value": 2591.9917
+        },
+        {
+          "year": 2025,
+          "value": 2702.4799
+        }
+      ]
+    },
+    "fxUsdLcu": {
+      "worldBankCode": "PA.NUS.FCRF",
+      "description": "Official Exchange Rate (LCU per USD)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 45.307
+        },
+        {
+          "year": 2007,
+          "value": 41.3485
+        },
+        {
+          "year": 2008,
+          "value": 43.5052
+        },
+        {
+          "year": 2009,
+          "value": 48.4053
+        },
+        {
+          "year": 2010,
+          "value": 45.7258
+        },
+        {
+          "year": 2011,
+          "value": 46.6705
+        },
+        {
+          "year": 2012,
+          "value": 53.4372
+        },
+        {
+          "year": 2013,
+          "value": 58.5978
+        },
+        {
+          "year": 2014,
+          "value": 61.0295
+        },
+        {
+          "year": 2015,
+          "value": 64.1519
+        },
+        {
+          "year": 2016,
+          "value": 67.1953
+        },
+        {
+          "year": 2017,
+          "value": 65.1216
+        },
+        {
+          "year": 2018,
+          "value": 68.3895
+        },
+        {
+          "year": 2019,
+          "value": 70.4203
+        },
+        {
+          "year": 2020,
+          "value": 74.0996
+        },
+        {
+          "year": 2021,
+          "value": 73.918
+        },
+        {
+          "year": 2022,
+          "value": 78.6045
+        },
+        {
+          "year": 2023,
+          "value": 82.5993
+        },
+        {
+          "year": 2024,
+          "value": 83.6693
+        },
+        {
+          "year": 2025,
+          "value": 87.1584
+        }
+      ]
+    },
+    "exportsUsdBillion": {
+      "worldBankCode": "NE.EXP.GNFS.CD",
+      "description": "Exports of Goods \u0026 Services (current USD)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 1.99973922363783E11
+        },
+        {
+          "year": 2007,
+          "value": 2.53077526013168E11
+        },
+        {
+          "year": 2008,
+          "value": 2.88902044820698E11
+        },
+        {
+          "year": 2009,
+          "value": 2.73752124889211E11
+        },
+        {
+          "year": 2010,
+          "value": 3.753535140262671E11
+        },
+        {
+          "year": 2011,
+          "value": 4.47384417625093E11
+        },
+        {
+          "year": 2012,
+          "value": 4.484004773612541E11
+        },
+        {
+          "year": 2013,
+          "value": 4.72180271340149E11
+        },
+        {
+          "year": 2014,
+          "value": 4.68345815420933E11
+        },
+        {
+          "year": 2015,
+          "value": 4.16787940847812E11
+        },
+        {
+          "year": 2016,
+          "value": 4.39642578076358E11
+        },
+        {
+          "year": 2017,
+          "value": 4.98258808231521E11
+        },
+        {
+          "year": 2018,
+          "value": 5.38635186135438E11
+        },
+        {
+          "year": 2019,
+          "value": 5.29245063167215E11
+        },
+        {
+          "year": 2020,
+          "value": 4.99728529072629E11
+        },
+        {
+          "year": 2021,
+          "value": 6.77769255428552E11
+        },
+        {
+          "year": 2022,
+          "value": 7.81290791563827E11
+        },
+        {
+          "year": 2023,
+          "value": 7.82620610192051E11
+        },
+        {
+          "year": 2024,
+          "value": 8.29785193474459E11
+        },
+        {
+          "year": 2025,
+          "value": 8.80740846621545E11
+        }
+      ]
+    },
+    "importsUsdBillion": {
+      "worldBankCode": "NE.IMP.GNFS.CD",
+      "description": "Imports of Goods \u0026 Services (current USD)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 2.29955027127372E11
+        },
+        {
+          "year": 2007,
+          "value": 3.028039525525E11
+        },
+        {
+          "year": 2008,
+          "value": 3.50926955799106E11
+        },
+        {
+          "year": 2009,
+          "value": 3.47177967968316E11
+        },
+        {
+          "year": 2010,
+          "value": 4.49974370198802E11
+        },
+        {
+          "year": 2011,
+          "value": 5.66667744819908E11
+        },
+        {
+          "year": 2012,
+          "value": 5.71306554042386E11
+        },
+        {
+          "year": 2013,
+          "value": 5.27555307105956E11
+        },
+        {
+          "year": 2014,
+          "value": 5.29239428328665E11
+        },
+        {
+          "year": 2015,
+          "value": 4.65097595426184E11
+        },
+        {
+          "year": 2016,
+          "value": 4.80169055768282E11
+        },
+        {
+          "year": 2017,
+          "value": 5.82018012521568E11
+        },
+        {
+          "year": 2018,
+          "value": 6.40300806738542E11
+        },
+        {
+          "year": 2019,
+          "value": 6.02315056052526E11
+        },
+        {
+          "year": 2020,
+          "value": 5.10244747372174E11
+        },
+        {
+          "year": 2021,
+          "value": 7.60902891806013E11
+        },
+        {
+          "year": 2022,
+          "value": 8.66361019118766E11
+        },
+        {
+          "year": 2023,
+          "value": 8.39102411987341E11
+        },
+        {
+          "year": 2024,
+          "value": 8.97055898132E11
+        },
+        {
+          "year": 2025,
+          "value": 9.49660225776158E11
+        }
+      ]
+    },
+    "currentAccountPctGdp": {
+      "worldBankCode": "BN.CAB.XOKA.GD.ZS",
+      "description": "Current Account Balance (% of GDP)",
+      "series": [
+        {
+          "year": 2006,
+          "value": -0.989
+        },
+        {
+          "year": 2007,
+          "value": -0.6637
+        },
+        {
+          "year": 2008,
+          "value": -2.5834
+        },
+        {
+          "year": 2009,
+          "value": -1.9515
+        },
+        {
+          "year": 2010,
+          "value": -3.2535
+        },
+        {
+          "year": 2011,
+          "value": -3.4293
+        },
+        {
+          "year": 2012,
+          "value": -5.0049
+        },
+        {
+          "year": 2013,
+          "value": -2.6457
+        },
+        {
+          "year": 2014,
+          "value": -1.3395
+        },
+        {
+          "year": 2015,
+          "value": -1.0675
+        },
+        {
+          "year": 2016,
+          "value": -0.5279
+        },
+        {
+          "year": 2017,
+          "value": -1.4395
+        },
+        {
+          "year": 2018,
+          "value": -2.427
+        },
+        {
+          "year": 2019,
+          "value": -1.0496
+        },
+        {
+          "year": 2020,
+          "value": 1.2236
+        },
+        {
+          "year": 2021,
+          "value": -1.0552
+        },
+        {
+          "year": 2022,
+          "value": -2.4324
+        },
+        {
+          "year": 2023,
+          "value": -0.9128
+        },
+        {
+          "year": 2024,
+          "value": -0.8513
+        },
+        {
+          "year": 2025,
+          "value": -0.5113
+        }
+      ]
+    },
+    "fdiNetPctGdp": {
+      "worldBankCode": "BX.KLT.DINV.WD.GD.ZS",
+      "description": "FDI Net Inflows (% of GDP)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 2.1302
+        },
+        {
+          "year": 2007,
+          "value": 2.0734
+        },
+        {
+          "year": 2008,
+          "value": 3.6205
+        },
+        {
+          "year": 2009,
+          "value": 2.6516
+        },
+        {
+          "year": 2010,
+          "value": 1.635
+        },
+        {
+          "year": 2011,
+          "value": 2.0021
+        },
+        {
+          "year": 2012,
+          "value": 1.3129
+        },
+        {
+          "year": 2013,
+          "value": 1.5163
+        },
+        {
+          "year": 2014,
+          "value": 1.6957
+        },
+        {
+          "year": 2015,
+          "value": 2.0921
+        },
+        {
+          "year": 2016,
+          "value": 1.9374
+        },
+        {
+          "year": 2017,
+          "value": 1.5073
+        },
+        {
+          "year": 2018,
+          "value": 1.5582
+        },
+        {
+          "year": 2019,
+          "value": 1.7848
+        },
+        {
+          "year": 2020,
+          "value": 2.4062
+        },
+        {
+          "year": 2021,
+          "value": 1.4122
+        },
+        {
+          "year": 2022,
+          "value": 1.5367
+        },
+        {
+          "year": 2023,
+          "value": 0.8023
+        },
+        {
+          "year": 2024,
+          "value": 0.7216
+        },
+        {
+          "year": 2025,
+          "value": 1.0311
+        }
+      ]
+    },
+    "govtDebtPctGdp": {
+      "worldBankCode": "GC.DOD.TOTL.GD.ZS",
+      "description": "Government Debt (% of GDP)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 59.6667
+        },
+        {
+          "year": 2007,
+          "value": 57.4975
+        },
+        {
+          "year": 2008,
+          "value": 57.2922
+        },
+        {
+          "year": 2009,
+          "value": 55.2564
+        },
+        {
+          "year": 2010,
+          "value": 51.5919
+        },
+        {
+          "year": 2011,
+          "value": 51.5566
+        },
+        {
+          "year": 2012,
+          "value": 50.678
+        },
+        {
+          "year": 2013,
+          "value": 50.3118
+        },
+        {
+          "year": 2014,
+          "value": 49.9009
+        },
+        {
+          "year": 2015,
+          "value": 49.9647
+        },
+        {
+          "year": 2016,
+          "value": 47.6338
+        },
+        {
+          "year": 2017,
+          "value": 47.5836
+        },
+        {
+          "year": 2018,
+          "value": 46.5225
+        }
+      ]
+    },
+    "broadMoneyPctGdp": {
+      "worldBankCode": "FM.LBL.BMNY.GD.ZS",
+      "description": "Broad Money M3 (% of GDP)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 68.063
+        },
+        {
+          "year": 2007,
+          "value": 72.2804
+        },
+        {
+          "year": 2008,
+          "value": 77.373
+        },
+        {
+          "year": 2009,
+          "value": 79.0752
+        },
+        {
+          "year": 2010,
+          "value": 77.68
+        },
+        {
+          "year": 2011,
+          "value": 78.8373
+        },
+        {
+          "year": 2012,
+          "value": 76.9132
+        },
+        {
+          "year": 2013,
+          "value": 78.1822
+        },
+        {
+          "year": 2014,
+          "value": 77.8994
+        },
+        {
+          "year": 2015,
+          "value": 78.0119
+        },
+        {
+          "year": 2016,
+          "value": 74.5493
+        },
+        {
+          "year": 2017,
+          "value": 74.1442
+        },
+        {
+          "year": 2018,
+          "value": 74.0978
+        },
+        {
+          "year": 2019,
+          "value": 76.9819
+        },
+        {
+          "year": 2020,
+          "value": 87.6767
+        },
+        {
+          "year": 2021,
+          "value": 82.102
+        }
+      ]
+    },
+    "lendingRatePct": {
+      "worldBankCode": "FR.INR.LEND",
+      "description": "Lending Interest Rate (%)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 11.1875
+        },
+        {
+          "year": 2007,
+          "value": 13.0208
+        },
+        {
+          "year": 2008,
+          "value": 13.3125
+        },
+        {
+          "year": 2009,
+          "value": 12.1875
+        },
+        {
+          "year": 2010,
+          "value": 8.3334
+        },
+        {
+          "year": 2011,
+          "value": 10.1667
+        },
+        {
+          "year": 2012,
+          "value": 10.6042
+        },
+        {
+          "year": 2013,
+          "value": 10.2917
+        },
+        {
+          "year": 2014,
+          "value": 10.25
+        },
+        {
+          "year": 2015,
+          "value": 10.0083
+        },
+        {
+          "year": 2016,
+          "value": 9.6725
+        },
+        {
+          "year": 2017,
+          "value": 9.5083
+        },
+        {
+          "year": 2018,
+          "value": 9.4542
+        },
+        {
+          "year": 2019,
+          "value": 9.4663
+        },
+        {
+          "year": 2020,
+          "value": 9.15
+        },
+        {
+          "year": 2021,
+          "value": 8.6983
+        },
+        {
+          "year": 2022,
+          "value": 8.5671
+        }
+      ]
+    },
+    "laborForcePctPop": {
+      "worldBankCode": "SL.TLF.ACTI.ZS",
+      "description": "Labor Force Participation Rate (%)",
+      "series": [
+        {
+          "year": 2006,
+          "value": 60.664
+        },
+        {
+          "year": 2007,
+          "value": 59.7
+        },
+        {
+          "year": 2008,
+          "value": 58.759
+        },
+        {
+          "year": 2009,
+          "value": 57.843
+        },
+        {
+          "year": 2010,
+          "value": 56.953
+        },
+        {
+          "year": 2011,
+          "value": 56.314
+        },
+        {
+          "year": 2012,
+          "value": 55.693
+        },
+        {
+          "year": 2013,
+          "value": 55.608
+        },
+        {
+          "year": 2014,
+          "value": 55.518
+        },
+        {
+          "year": 2015,
+          "value": 55.422
+        },
+        {
+          "year": 2016,
+          "value": 55.326
+        },
+        {
+          "year": 2017,
+          "value": 55.23
+        },
+        {
+          "year": 2018,
+          "value": 55.13
+        },
+        {
+          "year": 2019,
+          "value": 55.026
+        },
+        {
+          "year": 2020,
+          "value": 54.374
+        },
+        {
+          "year": 2021,
+          "value": 55.481
+        },
+        {
+          "year": 2022,
+          "value": 56.666
+        },
+        {
+          "year": 2023,
+          "value": 57.925
+        },
+        {
+          "year": 2024,
+          "value": 58.991
+        },
+        {
+          "year": 2025,
+          "value": 59.11
         }
       ]
     }

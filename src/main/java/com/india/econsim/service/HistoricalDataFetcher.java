@@ -98,9 +98,26 @@ public final class HistoricalDataFetcher {
     private static final Map<String, IndicatorSpec> INDICATORS = new LinkedHashMap<>();
 
     static {
-        INDICATORS.put("gdpGrowthPct",    new IndicatorSpec("NY.GDP.MKTP.KD.ZG", "Real GDP Growth (%)"));
-        INDICATORS.put("cpiInflationPct", new IndicatorSpec("FP.CPI.TOTL.ZG",    "CPI Inflation Rate (%)"));
-        INDICATORS.put("unemploymentPct", new IndicatorSpec("SL.UEM.TOTL.ZS",    "Unemployment Rate (%)"));
+        // Core macro
+        INDICATORS.put("gdpGrowthPct",        new IndicatorSpec("NY.GDP.MKTP.KD.ZG", "Real GDP Growth (%)"));
+        INDICATORS.put("cpiInflationPct",      new IndicatorSpec("FP.CPI.TOTL.ZG",    "CPI Inflation Rate (%)"));
+        INDICATORS.put("unemploymentPct",      new IndicatorSpec("SL.UEM.TOTL.ZS",    "Unemployment Rate (%)"));
+        // GDP level & per-capita
+        INDICATORS.put("gdpUsdBillion",        new IndicatorSpec("NY.GDP.MKTP.CD",     "GDP (current USD)"));
+        INDICATORS.put("gdpPerCapitaUsd",      new IndicatorSpec("NY.GDP.PCAP.CD",     "GDP per Capita (current USD)"));
+        // External sector
+        INDICATORS.put("fxUsdLcu",             new IndicatorSpec("PA.NUS.FCRF",        "Official Exchange Rate (LCU per USD)"));
+        INDICATORS.put("exportsUsdBillion",    new IndicatorSpec("NE.EXP.GNFS.CD",     "Exports of Goods & Services (current USD)"));
+        INDICATORS.put("importsUsdBillion",    new IndicatorSpec("NE.IMP.GNFS.CD",     "Imports of Goods & Services (current USD)"));
+        INDICATORS.put("currentAccountPctGdp", new IndicatorSpec("BN.CAB.XOKA.GD.ZS", "Current Account Balance (% of GDP)"));
+        INDICATORS.put("fdiNetPctGdp",         new IndicatorSpec("BX.KLT.DINV.WD.GD.ZS","FDI Net Inflows (% of GDP)"));
+        // Government
+        INDICATORS.put("govtDebtPctGdp",       new IndicatorSpec("GC.DOD.TOTL.GD.ZS", "Government Debt (% of GDP)"));
+        // Money & credit
+        INDICATORS.put("broadMoneyPctGdp",     new IndicatorSpec("FM.LBL.BMNY.GD.ZS", "Broad Money M3 (% of GDP)"));
+        INDICATORS.put("lendingRatePct",       new IndicatorSpec("FR.INR.LEND",        "Lending Interest Rate (%)"));
+        // Labour
+        INDICATORS.put("laborForcePctPop",     new IndicatorSpec("SL.TLF.ACTI.ZS",    "Labor Force Participation Rate (%)"));
     }
 
     // ── Private constructor (utility class) ──────────────────────────────────

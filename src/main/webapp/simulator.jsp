@@ -38,65 +38,130 @@
         .top-bar {
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 12px;
+            flex-wrap: wrap; gap: 8px;
         }
         .top-bar h1 { margin: 0; font-size: 1.32rem; color: var(--accent); }
+        .top-bar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .status-pill {
             background: var(--panel); border: 1px solid var(--blue);
             padding: 6px 14px; border-radius: 6px; font-weight: 700; color: var(--blue); font-size: 0.88rem;
         }
-        .summary-banner {
-            background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--blue);
-            padding: 10px 14px; border-radius: 6px; margin-bottom: 16px; font-size: 0.86rem; line-height: 1.4;
+        /* KPI strip below top bar */
+        .kpi-strip {
+            display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
         }
-        .main-grid { display: grid; grid-template-columns: 360px 1fr; gap: 18px; align-items: start; }
+        .kpi-card {
+            background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
+            padding: 10px 16px; flex: 1; min-width: 130px; text-align: center;
+        }
+        .kpi-card .kpi-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
+        .kpi-card .kpi-val   { font-size: 1.22rem; font-weight: 800; color: #fff; }
+        .kpi-card .kpi-delta { font-size: 0.75rem; margin-top: 2px; }
+
+        .summary-banner {
+            background: rgba(56, 189, 248, 0.08); border-left: 4px solid var(--blue);
+            padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 0.85rem; line-height: 1.45;
+        }
+
+        /* MAIN LAYOUT: indicators (1fr) LEFT, levers panel (340px) RIGHT */
+        .main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 18px; align-items: start; }
         .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
         .card h3 {
-            margin: 0 0 10px 0; font-size: 0.9rem; text-transform: uppercase;
+            margin: 0 0 10px 0; font-size: 0.82rem; text-transform: uppercase;
             color: var(--blue); border-bottom: 1px solid var(--border); padding-bottom: 6px;
         }
+
+        /* Sticky levers panel */
+        .levers-panel {
+            position: sticky; top: 18px; max-height: calc(100vh - 36px);
+            overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent;
+        }
+        .levers-panel::-webkit-scrollbar { width: 5px; }
+        .levers-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+        /* Collapsible lever sections */
+        .lever-section { margin-bottom: 4px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+        .lever-section-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; background: rgba(56,189,248,0.06); cursor: pointer;
+            font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--blue);
+            user-select: none; border: none; width: 100%; text-align: left;
+        }
+        .lever-section-header:hover { background: rgba(56,189,248,0.12); }
+        .lever-section-header .chevron { transition: transform 0.2s; font-style: normal; }
+        .lever-section-header.collapsed .chevron { transform: rotate(-90deg); }
+        .lever-section-body { padding: 10px 12px 6px; }
+        .lever-section-body.hidden { display: none; }
+
         .slider-row { margin-bottom: 9px; }
-        .slider-row label { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 2px; }
-        .slider-row input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; height: 5px; }
+        .slider-row label { display: flex; justify-content: space-between; font-size: 0.79rem; margin-bottom: 2px; color: var(--text); }
+        .slider-row label span { color: var(--muted); }
+        .slider-row label strong { color: var(--accent); min-width: 44px; text-align: right; }
+        .slider-row input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; height: 4px; }
+
+        /* Action buttons */
+        .action-bar {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 12px 0 4px;
+        }
+        .action-bar button {
+            padding: 9px 6px; border: none; border-radius: 5px;
+            font-weight: 700; cursor: pointer; color: #fff; font-size: 0.8rem; letter-spacing: 0.01em;
+        }
+        .b-qtr { background: var(--accent); }
+        .b-yr  { background: #2563eb; }
+        .b-rst { background: #475569; }
+        .b-cwr { background: #0d9488; }
         .btn-group { display: flex; gap: 8px; margin-top: 12px; }
         .btn-group button {
             flex: 1; padding: 9px; border: none; border-radius: 5px;
             font-weight: 700; cursor: pointer; color: #fff; font-size: 0.82rem;
         }
-        .b-qtr { background: var(--accent); }
-        .b-yr { background: #2563eb; }
-        .b-rst { background: #475569; }
-        .b-cwr { background: #0d9488; font-size: 0.78rem; }
 
         /* Trading Economics Tab Bar */
         .te-tabs {
-            display: flex; flex-wrap: wrap; background: #e2e8f0; border-radius: 6px 6px 0 0;
-            overflow: hidden; border: 1px solid var(--border);
+            display: flex; flex-wrap: wrap; background: #1e293b; border-radius: 6px 6px 0 0;
+            overflow: hidden; border: 1px solid var(--border); gap: 2px; padding: 4px 4px 0;
         }
         .te-tab-btn {
-            background: #e2e8f0; color: #1e293b; border: none; border-right: 1px solid #cbd5e1;
-            padding: 10px 14px; font-size: 0.84rem; font-weight: 600; cursor: pointer;
+            background: #0f172a; color: var(--muted); border: 1px solid transparent;
+            border-radius: 5px 5px 0 0; padding: 8px 13px; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+            transition: color 0.15s, background 0.15s;
         }
-        .te-tab-btn.active { background: #ffffff; color: #0f172a; font-weight: 700; box-shadow: inset 0 -3px 0 var(--accent); }
+        .te-tab-btn:hover { color: var(--text); background: #334155; }
+        .te-tab-btn.active {
+            background: var(--panel); color: var(--text); font-weight: 700;
+            border-color: var(--border); border-bottom-color: var(--panel);
+            box-shadow: 0 -2px 0 var(--accent);
+        }
         .tab-pane { display: none; background: var(--panel); border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 14px; }
         .tab-pane.active { display: block; }
 
         .te-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         .te-table th {
             text-align: left; padding: 9px; background: #0f172a; color: var(--muted);
-            font-size: 0.76rem; text-transform: uppercase; border-bottom: 1px solid var(--border);
+            font-size: 0.73rem; text-transform: uppercase; border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1;
         }
-        .te-table td { padding: 9px; border-bottom: 1px solid var(--border); }
-        .te-table tr { cursor: pointer; transition: background 0.12s; }
-        .te-table tr:hover { background: rgba(56, 189, 248, 0.08); }
-        .val-col { font-weight: 700; color: #fff; }
+        .te-table td { padding: 9px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .te-table tbody tr { cursor: pointer; transition: background 0.12s; }
+        .te-table tbody tr:hover { background: rgba(249,115,22,0.07); }
+        .val-col { font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
         .why-btn {
             background: #334155; color: var(--blue); border: 1px solid var(--blue);
             border-radius: 4px; padding: 2px 8px; font-size: 0.73rem; cursor: pointer; font-weight: 600;
         }
         .badge { font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; font-weight: 700; display: inline-block; }
-        .b-lead { background: rgba(56, 189, 248, 0.15); color: var(--blue); border: 1px solid var(--blue); }
-        .b-coin { background: rgba(34, 197, 94, 0.15); color: var(--green); border: 1px solid var(--green); }
-        .b-lag  { background: rgba(192, 132, 252, 0.15); color: var(--purple); border: 1px solid var(--purple); }
+        .b-lead { background: rgba(56,189,248,0.15); color: var(--blue); border: 1px solid var(--blue); }
+        .b-coin { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid var(--green); }
+        .b-lag  { background: rgba(192,132,252,0.15); color: var(--purple); border: 1px solid var(--purple); }
+
+        /* Time machine section in levers panel */
+        .tm-section {
+            margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;
+        }
+        .tm-section h4 {
+            margin: 0 0 6px; font-size: 0.78rem; text-transform: uppercase; color: #a78bfa; letter-spacing: 0.04em;
+        }
 
         /* LIVE PROS & CONS POPUP TOAST */
         #policyPopup {
@@ -184,11 +249,57 @@
 
 <div class="top-bar">
     <div>
-        <h1>🇮🇳 India Macroeconomic Simulator — Live Pros/Cons & Causal Engine</h1>
-        <small style="color:var(--muted);">Move any slider to see a Live Pros/Cons Popup &bull; Click any Indicator Row to see why it increased or decreased</small>
+        <h1>🇮🇳 India Macroeconomic Simulator</h1>
+        <small style="color:var(--muted);">Move any lever to see Live Pros/Cons &bull; Click any indicator row to see why it changed</small>
     </div>
-    <div class="status-pill">
-        Period: <%= econ.getYear() %> Q<%= econ.getQuarter() %> &bull; GDP: $<%= econ.getGdpUsdBillion() %>B &bull; Growth: <%= econ.getGdpAnnualGrowthRate() %>%
+    <div class="top-bar-right">
+        <div class="status-pill">
+            📅 <%= econ.getYear() %> Q<%= econ.getQuarter() %>
+        </div>
+        <div class="status-pill" style="border-color:var(--green);color:var(--green);">
+            📈 GDP $<%= String.format("%.0f", econ.getGdpUsdBillion()) %>B
+        </div>
+    </div>
+</div>
+
+<!-- KPI STRIP -->
+<%
+    String gdpDeltaColor = econ.getDelta("gdpAnnualGrowthRate") >= 0 ? "#22c55e" : "#ef4444";
+    String infDeltaColor = econ.getDelta("inflationRate") <= 0 ? "#22c55e" : "#ef4444";
+    String uemDeltaColor = econ.getDelta("unemploymentRate") <= 0 ? "#22c55e" : "#ef4444";
+    String senDeltaColor = econ.getDelta("stockMarketSensex") >= 0 ? "#22c55e" : "#ef4444";
+    String fxDeltaColor  = econ.getDelta("currencyUsdInr") <= 0 ? "#22c55e" : "#ef4444";
+%>
+<div class="kpi-strip">
+    <div class="kpi-card" style="border-color:rgba(34,197,94,0.4);">
+        <div class="kpi-label">GDP Growth</div>
+        <div class="kpi-val" style="color:#22c55e;"><%= econ.getGdpAnnualGrowthRate() %>%</div>
+        <div class="kpi-delta" style="color:<%= gdpDeltaColor %>;"><%= fmtDelta(econ,"gdpAnnualGrowthRate",false) %></div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(251,191,36,0.4);">
+        <div class="kpi-label">CPI Inflation</div>
+        <div class="kpi-val" style="color:#fbbf24;"><%= econ.getInflationRate() %>%</div>
+        <div class="kpi-delta" style="color:<%= infDeltaColor %>;"><%= fmtDelta(econ,"inflationRate",true) %></div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(192,132,252,0.4);">
+        <div class="kpi-label">Unemployment</div>
+        <div class="kpi-val" style="color:#c084fc;"><%= econ.getUnemploymentRate() %>%</div>
+        <div class="kpi-delta" style="color:<%= uemDeltaColor %>;"><%= fmtDelta(econ,"unemploymentRate",true) %></div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(56,189,248,0.4);">
+        <div class="kpi-label">BSE Sensex</div>
+        <div class="kpi-val" style="color:#38bdf8;"><%= String.format("%,.0f", econ.getStockMarketSensex()) %></div>
+        <div class="kpi-delta" style="color:<%= senDeltaColor %>;"><%= fmtDelta(econ,"stockMarketSensex",false) %></div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(249,115,22,0.4);">
+        <div class="kpi-label">USD/INR</div>
+        <div class="kpi-val" style="color:#f97316;"><%= econ.getCurrencyUsdInr() %></div>
+        <div class="kpi-delta" style="color:<%= fxDeltaColor %>;"><%= fmtDelta(econ,"currencyUsdInr",true) %></div>
+    </div>
+    <div class="kpi-card" style="border-color:rgba(239,68,68,0.4);">
+        <div class="kpi-label">Fiscal Deficit</div>
+        <div class="kpi-val" style="color:#ef4444;"><%= econ.getGovernmentBudget() %>%</div>
+        <div class="kpi-delta"><%= fmtDelta(econ,"governmentBudget",false) %></div>
     </div>
 </div>
 
@@ -197,184 +308,10 @@
 </div>
 
 <div class="main-grid">
-    <!-- LEFT SIDEBAR: POLICY SLIDERS WITH ONINPUT PROS/CONS POPUP TRIGGER -->
-    <form action="<%= request.getContextPath() %>/simulate" method="post" class="card">
-        <input type="hidden" id="activeTabInput" name="activeTab" value="<%= activeTab %>">
 
-        <h3>Taxes & Tariffs Levers</h3>
-        <div class="slider-row">
-            <label><span>Corporate Tax Rate</span><strong id="lbl_corp"><%= econ.getCorporateTaxRate() %>%</strong></label>
-            <input type="range" name="corporateTaxRate" min="15" max="45" step="0.5"
-                   data-baseline="<%= econ.getCorporateTaxRate() %>" value="<%= econ.getCorporateTaxRate() %>"
-                   oninput="onPolicyAdjust('corporateTaxRate', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Personal Income Tax Rate</span><strong id="lbl_pit"><%= econ.getPersonalIncomeTaxRate() %>%</strong></label>
-            <input type="range" name="personalIncomeTaxRate" min="5" max="40" step="0.5"
-                   data-baseline="<%= econ.getPersonalIncomeTaxRate() %>" value="<%= econ.getPersonalIncomeTaxRate() %>"
-                   oninput="onPolicyAdjust('personalIncomeTaxRate', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Sales Tax / GST Rate</span><strong id="lbl_gst"><%= econ.getSalesTaxGstRate() %>%</strong></label>
-            <input type="range" name="salesTaxGstRate" min="8" max="28" step="0.5"
-                   data-baseline="<%= econ.getSalesTaxGstRate() %>" value="<%= econ.getSalesTaxGstRate() %>"
-                   oninput="onPolicyAdjust('salesTaxGstRate', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Social Security Rate (EPFO)</span><strong id="lbl_soc"><%= econ.getSocialSecurityRate() %>%</strong></label>
-            <input type="range" name="socialSecurityRate" min="10" max="35" step="0.5"
-                   data-baseline="<%= econ.getSocialSecurityRate() %>" value="<%= econ.getSocialSecurityRate() %>"
-                   oninput="onPolicyAdjust('socialSecurityRate', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Withholding Tax Rate</span><strong id="lbl_wht"><%= econ.getWithholdingTaxRate() %>%</strong></label>
-            <input type="range" name="withholdingTaxRate" min="5" max="35" step="0.5"
-                   data-baseline="<%= econ.getWithholdingTaxRate() %>" value="<%= econ.getWithholdingTaxRate() %>"
-                   oninput="onPolicyAdjust('withholdingTaxRate', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Customs & Import Duty</span><strong id="lbl_cst"><%= econ.getCustomsDutyRate() %>%</strong></label>
-            <input type="range" name="customsDutyRate" min="0" max="30" step="0.5"
-                   data-baseline="<%= econ.getCustomsDutyRate() %>" value="<%= econ.getCustomsDutyRate() %>"
-                   oninput="onPolicyAdjust('customsDutyRate', this, '%')">
-        </div>
-
-        <h3 style="margin-top:12px;">RBI Monetary Levers</h3>
-        <div class="slider-row">
-            <label><span>RBI Repo Interest Rate</span><strong id="lbl_repo"><%= econ.getInterestRate() %>%</strong></label>
-            <input type="range" name="interestRate" min="3.0" max="10.0" step="0.25"
-                   data-baseline="<%= econ.getInterestRate() %>" value="<%= econ.getInterestRate() %>"
-                   oninput="onPolicyAdjust('interestRate', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Cash Reserve Ratio (CRR)</span><strong id="lbl_crr"><%= econ.getCashReserveRatio() %>%</strong></label>
-            <input type="range" name="cashReserveRatio" min="2.0" max="8.0" step="0.25"
-                   data-baseline="<%= econ.getCashReserveRatio() %>" value="<%= econ.getCashReserveRatio() %>"
-                   oninput="onPolicyAdjust('cashReserveRatio', this, '%')">
-        </div>
-
-        <h3 style="margin-top:12px;">Sectoral Budgets (% of GDP)</h3>
-        <div class="slider-row">
-            <label><span>Infrastructure Capex</span><strong id="lbl_inf"><%= econ.getInfraSpend() %>%</strong></label>
-            <input type="range" name="infraSpend" min="1.0" max="7.0" step="0.1"
-                   data-baseline="<%= econ.getInfraSpend() %>" value="<%= econ.getInfraSpend() %>"
-                   oninput="onPolicyAdjust('infraSpend', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Education & Skills</span><strong id="lbl_edu"><%= econ.getEducationSpend() %>%</strong></label>
-            <input type="range" name="educationSpend" min="1.0" max="6.0" step="0.1"
-                   data-baseline="<%= econ.getEducationSpend() %>" value="<%= econ.getEducationSpend() %>"
-                   oninput="onPolicyAdjust('educationSpend', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Healthcare & Hospitals</span><strong id="lbl_hlt"><%= econ.getHealthSpend() %>%</strong></label>
-            <input type="range" name="healthSpend" min="0.8" max="5.0" step="0.1"
-                   data-baseline="<%= econ.getHealthSpend() %>" value="<%= econ.getHealthSpend() %>"
-                   oninput="onPolicyAdjust('healthSpend', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Technology & Deep-Tech R&D</span><strong id="lbl_tch"><%= econ.getTechSpend() %>%</strong></label>
-            <input type="range" name="techSpend" min="0.2" max="3.5" step="0.05"
-                   data-baseline="<%= econ.getTechSpend() %>" value="<%= econ.getTechSpend() %>"
-                   oninput="onPolicyAdjust('techSpend', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Machinery & PLI Capital Goods</span><strong id="lbl_mch"><%= econ.getMachinerySpend() %>%</strong></label>
-            <input type="range" name="machinerySpend" min="0.5" max="4.0" step="0.1"
-                   data-baseline="<%= econ.getMachinerySpend() %>" value="<%= econ.getMachinerySpend() %>"
-                   oninput="onPolicyAdjust('machinerySpend', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>IT & Digital Services</span><strong id="lbl_it"><%= econ.getItServicesSpend() %>%</strong></label>
-            <input type="range" name="itServicesSpend" min="0.3" max="3.5" step="0.1"
-                   data-baseline="<%= econ.getItServicesSpend() %>" value="<%= econ.getItServicesSpend() %>"
-                   oninput="onPolicyAdjust('itServicesSpend', this, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Tourism & Hospitality</span><strong id="lbl_trm"><%= econ.getTourismSpend() %>%</strong></label>
-            <input type="range" name="tourismSpend" min="0.1" max="2.5" step="0.1"
-                   data-baseline="<%= econ.getTourismSpend() %>" value="<%= econ.getTourismSpend() %>"
-                   oninput="onPolicyAdjust('tourismSpend', this, '%')">
-        </div>
-
-        <h3 style="margin-top:12px;">Exogenous Shocks</h3>
-        <div class="slider-row">
-            <label><span>Brent Crude Oil Price ($/bbl)</span><strong id="lbl_oil"><%= econ.getBrentCrudePrice() %></strong></label>
-            <input type="range" name="brentCrudePrice" min="20" max="150" step="1"
-                   data-baseline="<%= econ.getBrentCrudePrice() %>" value="<%= econ.getBrentCrudePrice() %>"
-                   oninput="syncLabel('lbl_oil', this.value, '')">
-        </div>
-        <div class="slider-row">
-            <label><span>Monsoon Index (100=Normal)</span><strong id="lbl_mon"><%= econ.getMonsoonIndex() %></strong></label>
-            <input type="range" name="monsoonIndex" min="70" max="130" step="1"
-                   data-baseline="<%= econ.getMonsoonIndex() %>" value="<%= econ.getMonsoonIndex() %>"
-                   oninput="syncLabel('lbl_mon', this.value, '')">
-        </div>
-        <div class="slider-row">
-            <label><span>M1 Shock % (0=none, -19=Demonetisation)</span><strong id="lbl_m1s"><%= econ.getM1ShockPct() %></strong></label>
-            <input type="range" name="m1ShockPct" min="-25" max="10" step="1"
-                   data-baseline="0" value="<%= econ.getM1ShockPct() %>"
-                   oninput="syncLabel('lbl_m1s', this.value, '')">
-        </div>
-        <div class="slider-row">
-            <label><span>Banking NPA % (Gross NPA / Advances)</span><strong id="lbl_npa"><%= econ.getBankingNpaPct() %>%</strong></label>
-            <input type="range" name="bankingNpaPct" min="2" max="20" step="0.5"
-                   data-baseline="<%= econ.getBankingNpaPct() %>" value="<%= econ.getBankingNpaPct() %>"
-                   oninput="syncLabel('lbl_npa', this.value, '%')">
-        </div>
-        <div class="slider-row">
-            <label><span>Tax Buoyancy Coefficient</span><strong id="lbl_tbc"><%= econ.getTaxBuoyancyCoeff() %></strong></label>
-            <input type="range" name="taxBuoyancyCoeff" min="0.6" max="1.5" step="0.05"
-                   data-baseline="<%= econ.getTaxBuoyancyCoeff() %>" value="<%= econ.getTaxBuoyancyCoeff() %>"
-                   oninput="syncLabel('lbl_tbc', this.value, '')">
-        </div>
-        <div class="slider-row">
-            <label><span>Neutral Repo Rate r* (%)</span><strong id="lbl_rstar"><%= econ.getNeutralRepoRate() %>%</strong></label>
-            <input type="range" name="neutralRepoRate" min="4.0" max="9.0" step="0.25"
-                   data-baseline="<%= econ.getNeutralRepoRate() %>" value="<%= econ.getNeutralRepoRate() %>"
-                   oninput="syncLabel('lbl_rstar', this.value, '%')">
-        </div>
-            <button type="submit" name="action" value="advanceQuarter" class="b-qtr">+1 Quarter</button>
-            <button type="submit" name="action" value="advanceYear" class="b-yr">+1 Year</button>
-            <button type="submit" name="action" value="checkReality" class="b-cwr" title="FY2015-16 → 2016-17 Backtest vs CSO/RBI Actuals">🔬 Check With Reality</button>
-            <button type="submit" name="action" value="reset" class="b-rst">Reset</button>
-        </div>
-
-        <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px;">
-            <h3 style="margin:0 0 8px 0;font-size:0.82rem;text-transform:uppercase;color:#a78bfa;border-bottom:1px solid var(--border);padding-bottom:6px;">
-                ⏳ Time Machine Backtest
-            </h3>
-            <p style="font-size:0.76rem;color:var(--muted);margin:0 0 10px 0;line-height:1.45;">
-                Fetch 20 years of World Bank data, pick a baseline year, and see how accurately the engine forecasts the following year's GDP, inflation &amp; unemployment vs. reality.
-            </p>
-            <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;">
-                <label style="font-size:0.78rem;color:var(--muted);white-space:nowrap;">Baseline Year:</label>
-                <select name="tmYear" style="flex:1;background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:0.82rem;">
-                    <option value="2010">2010 → 2011</option>
-                    <option value="2013">2013 → 2014</option>
-                    <option value="2015" selected>2015 → 2016 (Demonetisation)</option>
-                    <option value="2018">2018 → 2019</option>
-                    <option value="2019">2019 → 2020 (COVID shadow)</option>
-                </select>
-            </div>
-            <div class="btn-group" style="margin-top:0;">
-                <button type="submit" name="action" value="fetchHistory"
-                        style="flex:1;padding:8px;border:none;border-radius:5px;font-weight:700;cursor:pointer;color:#fff;background:#7c3aed;font-size:0.78rem;"
-                        title="Download 20 years of India data from World Bank API (requires internet)">
-                    🌐 Fetch WB Data
-                </button>
-                <button type="submit" name="action" value="timeMachine"
-                        style="flex:1;padding:8px;border:none;border-radius:5px;font-weight:700;cursor:pointer;color:#fff;background:#0891b2;font-size:0.78rem;"
-                        title="Run Time Machine backtest for the selected year">
-                    🕰️ Run Backtest
-                </button>
-            </div>
-        </div>
-
-    </form>
-
-    <!-- RIGHT AREA: ALL 11 TRADING ECONOMICS TABS WITH DELTA & CAUSAL CLICK -->
+    <!-- LEFT: ALL 11 INDICATOR TABS (wide, primary view) -->
     <div>
+
         <div class="te-tabs">
             <% String[] tabs = {"Overview", "GDP", "Labour", "Prices", "Money", "Trade", "Government", "Business", "Consumer", "Housing", "Health"};
                for (String t : tabs) { %>
@@ -575,6 +512,138 @@
             </table>
         </div>
     </div>
+    <!-- END LEFT: INDICATOR TABS -->
+
+    <!-- RIGHT: STICKY POLICY LEVERS PANEL -->
+    <div class="levers-panel">
+      <form action="<%= request.getContextPath() %>/simulate" method="post" class="card" style="padding:12px;">
+        <input type="hidden" id="activeTabInput" name="activeTab" value="<%= activeTab %>">
+
+        <!-- ACTION BUTTONS -->
+        <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">
+            <div style="font-size:0.69rem;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:0.05em;margin-bottom:6px;">⚙️ Simulation Controls</div>
+            <div class="action-bar">
+                <button type="submit" name="action" value="advanceQuarter" class="b-qtr">▶ +1 Quarter</button>
+                <button type="submit" name="action" value="advanceYear"    class="b-yr" >▶▶ +1 Year</button>
+                <button type="submit" name="action" value="checkReality"   class="b-cwr">🔬 Reality Check</button>
+                <button type="submit" name="action" value="reset"          class="b-rst">↺ Reset</button>
+            </div>
+        </div>
+
+        <!-- TAXES & TARIFFS -->
+        <div class="lever-section">
+            <button type="button" class="lever-section-header" onclick="toggleSection(this)">
+                🏦 Taxes &amp; Tariffs <i class="chevron">▾</i>
+            </button>
+            <div class="lever-section-body">
+                <div class="slider-row"><label><span>Corporate Tax</span><strong id="lbl_corp"><%= econ.getCorporateTaxRate() %>%</strong></label><input type="range" name="corporateTaxRate" min="15" max="45" step="0.5" data-baseline="<%= econ.getCorporateTaxRate() %>" value="<%= econ.getCorporateTaxRate() %>" oninput="onPolicyAdjust('corporateTaxRate', this, '%')"></div>
+                <div class="slider-row"><label><span>Personal Income Tax</span><strong id="lbl_pit"><%= econ.getPersonalIncomeTaxRate() %>%</strong></label><input type="range" name="personalIncomeTaxRate" min="5" max="40" step="0.5" data-baseline="<%= econ.getPersonalIncomeTaxRate() %>" value="<%= econ.getPersonalIncomeTaxRate() %>" oninput="onPolicyAdjust('personalIncomeTaxRate', this, '%')"></div>
+                <div class="slider-row"><label><span>GST / Sales Tax</span><strong id="lbl_gst"><%= econ.getSalesTaxGstRate() %>%</strong></label><input type="range" name="salesTaxGstRate" min="8" max="28" step="0.5" data-baseline="<%= econ.getSalesTaxGstRate() %>" value="<%= econ.getSalesTaxGstRate() %>" oninput="onPolicyAdjust('salesTaxGstRate', this, '%')"></div>
+                <div class="slider-row"><label><span>Social Security (EPFO)</span><strong id="lbl_soc"><%= econ.getSocialSecurityRate() %>%</strong></label><input type="range" name="socialSecurityRate" min="10" max="35" step="0.5" data-baseline="<%= econ.getSocialSecurityRate() %>" value="<%= econ.getSocialSecurityRate() %>" oninput="onPolicyAdjust('socialSecurityRate', this, '%')"></div>
+                <div class="slider-row"><label><span>Withholding Tax</span><strong id="lbl_wht"><%= econ.getWithholdingTaxRate() %>%</strong></label><input type="range" name="withholdingTaxRate" min="5" max="35" step="0.5" data-baseline="<%= econ.getWithholdingTaxRate() %>" value="<%= econ.getWithholdingTaxRate() %>" oninput="onPolicyAdjust('withholdingTaxRate', this, '%')"></div>
+                <div class="slider-row"><label><span>Customs &amp; Import Duty</span><strong id="lbl_cst"><%= econ.getCustomsDutyRate() %>%</strong></label><input type="range" name="customsDutyRate" min="0" max="30" step="0.5" data-baseline="<%= econ.getCustomsDutyRate() %>" value="<%= econ.getCustomsDutyRate() %>" oninput="onPolicyAdjust('customsDutyRate', this, '%')"></div>
+            </div>
+        </div>
+
+        <!-- RBI MONETARY -->
+        <div class="lever-section">
+            <button type="button" class="lever-section-header" onclick="toggleSection(this)">
+                🏛️ RBI Monetary <i class="chevron">▾</i>
+            </button>
+            <div class="lever-section-body">
+                <div class="slider-row"><label><span>Repo Rate</span><strong id="lbl_repo"><%= econ.getInterestRate() %>%</strong></label><input type="range" name="interestRate" min="3.0" max="10.0" step="0.25" data-baseline="<%= econ.getInterestRate() %>" value="<%= econ.getInterestRate() %>" oninput="onPolicyAdjust('interestRate', this, '%')"></div>
+                <div class="slider-row"><label><span>Cash Reserve Ratio (CRR)</span><strong id="lbl_crr"><%= econ.getCashReserveRatio() %>%</strong></label><input type="range" name="cashReserveRatio" min="2.0" max="8.0" step="0.25" data-baseline="<%= econ.getCashReserveRatio() %>" value="<%= econ.getCashReserveRatio() %>" oninput="onPolicyAdjust('cashReserveRatio', this, '%')"></div>
+            </div>
+        </div>
+
+        <!-- SECTORAL BUDGETS -->
+        <div class="lever-section">
+            <button type="button" class="lever-section-header" onclick="toggleSection(this)">
+                📊 Sectoral Budgets (% GDP) <i class="chevron">▾</i>
+            </button>
+            <div class="lever-section-body">
+                <div class="slider-row"><label><span>Infrastructure</span><strong id="lbl_inf"><%= econ.getInfraSpend() %>%</strong></label><input type="range" name="infraSpend" min="1.0" max="8.0" step="0.1" data-baseline="<%= econ.getInfraSpend() %>" value="<%= econ.getInfraSpend() %>" oninput="onPolicyAdjust('infraSpend', this, '%')"></div>
+                <div class="slider-row"><label><span>Education</span><strong id="lbl_edu"><%= econ.getEducationSpend() %>%</strong></label><input type="range" name="educationSpend" min="1.0" max="6.0" step="0.1" data-baseline="<%= econ.getEducationSpend() %>" value="<%= econ.getEducationSpend() %>" oninput="onPolicyAdjust('educationSpend', this, '%')"></div>
+                <div class="slider-row"><label><span>Healthcare</span><strong id="lbl_hlt"><%= econ.getHealthSpend() %>%</strong></label><input type="range" name="healthSpend" min="0.8" max="5.0" step="0.1" data-baseline="<%= econ.getHealthSpend() %>" value="<%= econ.getHealthSpend() %>" oninput="onPolicyAdjust('healthSpend', this, '%')"></div>
+                <div class="slider-row"><label><span>Tech &amp; R&amp;D</span><strong id="lbl_tch"><%= econ.getTechSpend() %>%</strong></label><input type="range" name="techSpend" min="0.2" max="3.5" step="0.05" data-baseline="<%= econ.getTechSpend() %>" value="<%= econ.getTechSpend() %>" oninput="onPolicyAdjust('techSpend', this, '%')"></div>
+                <div class="slider-row"><label><span>Machinery / PLI</span><strong id="lbl_mch"><%= econ.getMachinerySpend() %>%</strong></label><input type="range" name="machinerySpend" min="0.5" max="4.0" step="0.1" data-baseline="<%= econ.getMachinerySpend() %>" value="<%= econ.getMachinerySpend() %>" oninput="onPolicyAdjust('machinerySpend', this, '%')"></div>
+                <div class="slider-row"><label><span>IT &amp; Digital Services</span><strong id="lbl_it"><%= econ.getItServicesSpend() %>%</strong></label><input type="range" name="itServicesSpend" min="0.3" max="3.5" step="0.1" data-baseline="<%= econ.getItServicesSpend() %>" value="<%= econ.getItServicesSpend() %>" oninput="onPolicyAdjust('itServicesSpend', this, '%')"></div>
+                <div class="slider-row"><label><span>Tourism</span><strong id="lbl_trm"><%= econ.getTourismSpend() %>%</strong></label><input type="range" name="tourismSpend" min="0.1" max="2.5" step="0.1" data-baseline="<%= econ.getTourismSpend() %>" value="<%= econ.getTourismSpend() %>" oninput="onPolicyAdjust('tourismSpend', this, '%')"></div>
+            </div>
+        </div>
+
+        <!-- EXOGENOUS SHOCKS — collapsed by default -->
+        <div class="lever-section">
+            <button type="button" class="lever-section-header collapsed" onclick="toggleSection(this)">
+                ⚡ Exogenous Shocks <i class="chevron">▾</i>
+            </button>
+            <div class="lever-section-body hidden">
+                <div class="slider-row"><label><span>Brent Crude ($/bbl)</span><strong id="lbl_oil"><%= econ.getBrentCrudePrice() %></strong></label><input type="range" name="brentCrudePrice" min="20" max="150" step="1" data-baseline="<%= econ.getBrentCrudePrice() %>" value="<%= econ.getBrentCrudePrice() %>" oninput="syncLabel('lbl_oil', this.value, '')"></div>
+                <div class="slider-row"><label><span>Monsoon Index (100=Normal)</span><strong id="lbl_mon"><%= econ.getMonsoonIndex() %></strong></label><input type="range" name="monsoonIndex" min="70" max="130" step="1" data-baseline="<%= econ.getMonsoonIndex() %>" value="<%= econ.getMonsoonIndex() %>" oninput="syncLabel('lbl_mon', this.value, '')"></div>
+                <div class="slider-row"><label><span>M1 Shock % (0=none)</span><strong id="lbl_m1s"><%= econ.getM1ShockPct() %></strong></label><input type="range" name="m1ShockPct" min="-25" max="10" step="1" data-baseline="0" value="<%= econ.getM1ShockPct() %>" oninput="syncLabel('lbl_m1s', this.value, '')"></div>
+                <div class="slider-row"><label><span>Banking NPA %</span><strong id="lbl_npa"><%= econ.getBankingNpaPct() %>%</strong></label><input type="range" name="bankingNpaPct" min="2" max="20" step="0.5" data-baseline="<%= econ.getBankingNpaPct() %>" value="<%= econ.getBankingNpaPct() %>" oninput="syncLabel('lbl_npa', this.value, '%')"></div>
+                <div class="slider-row"><label><span>Tax Buoyancy Coeff</span><strong id="lbl_tbc"><%= econ.getTaxBuoyancyCoeff() %></strong></label><input type="range" name="taxBuoyancyCoeff" min="0.6" max="1.5" step="0.05" data-baseline="<%= econ.getTaxBuoyancyCoeff() %>" value="<%= econ.getTaxBuoyancyCoeff() %>" oninput="syncLabel('lbl_tbc', this.value, '')"></div>
+                <div class="slider-row"><label><span>Neutral Repo r* (%)</span><strong id="lbl_rstar"><%= econ.getNeutralRepoRate() %>%</strong></label><input type="range" name="neutralRepoRate" min="4.0" max="9.0" step="0.25" data-baseline="<%= econ.getNeutralRepoRate() %>" value="<%= econ.getNeutralRepoRate() %>" oninput="syncLabel('lbl_rstar', this.value, '%')"></div>
+            </div>
+        </div>
+
+        <!-- DYNAMIC WORLD BANK BACKTEST — collapsed by default -->
+        <div class="lever-section">
+            <button type="button" class="lever-section-header collapsed" onclick="toggleSection(this)">
+                🌍 Dynamic WB Backtest <i class="chevron">▾</i>
+            </button>
+            <div class="lever-section-body hidden">
+                <p style="font-size:0.75rem;color:var(--muted);margin:0 0 10px;line-height:1.5;">
+                    Pick any year. The engine fetches <strong style="color:var(--text);">real World Bank data</strong> for that year, simulates forward, then compares against the <em>next year's</em> actual WB data — fully automatic, no hard-coded values.
+                </p>
+                <div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:0.73rem;color:var(--muted);line-height:1.5;">
+                    <strong style="color:var(--blue);">How it works:</strong><br>
+                    1. Click <strong>🌐 Fetch</strong> once to cache 20 yrs of WB data<br>
+                    2. Pick a <strong>Baseline Year</strong> (e.g. 2014)<br>
+                    3. Click <strong>▶ Simulate &amp; Compare</strong><br>
+                    → Seeds from WB 2014 actuals → simulates → compares vs WB 2015 actuals
+                </div>
+                <div style="margin-bottom:8px;">
+                    <label style="font-size:0.76rem;color:var(--muted);display:block;margin-bottom:4px;">Baseline Year (seeds simulation):</label>
+                    <select name="dynYear" id="dynYearSelect" style="width:100%;background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:0.83rem;" onchange="updateDynLabel(this.value)">
+                        <option value="2006">2006 → 2007</option>
+                        <option value="2007">2007 → 2008</option>
+                        <option value="2008">2008 → 2009 (GFC)</option>
+                        <option value="2009">2009 → 2010</option>
+                        <option value="2010">2010 → 2011</option>
+                        <option value="2011">2011 → 2012</option>
+                        <option value="2012">2012 → 2013</option>
+                        <option value="2013">2013 → 2014 (Taper Tantrum)</option>
+                        <option value="2014" selected>2014 → 2015</option>
+                        <option value="2015">2015 → 2016 (Demonetisation)</option>
+                        <option value="2016">2016 → 2017</option>
+                        <option value="2017">2017 → 2018 (GST launch)</option>
+                        <option value="2018">2018 → 2019 (NBFC crisis)</option>
+                        <option value="2019">2019 → 2020 (COVID shadow)</option>
+                        <option value="2020">2020 → 2021 (COVID)</option>
+                        <option value="2021">2021 → 2022 (Recovery)</option>
+                        <option value="2022">2022 → 2023 (Inflation surge)</option>
+                        <option value="2023">2023 → 2024</option>
+                    </select>
+                </div>
+                <div id="dynYearLabel" style="font-size:0.72rem;color:var(--blue);margin-bottom:8px;text-align:center;">
+                    Seed from WB 2014 actuals → Simulate → Compare vs WB 2015 actuals
+                </div>
+                <div class="action-bar">
+                    <button type="submit" name="action" value="fetchHistory" style="background:#7c3aed;font-size:0.76rem;" title="Download 20 years of India data from World Bank API (once)">
+                        🌐 Fetch WB Data
+                    </button>
+                    <button type="submit" name="action" value="dynamicBacktest" style="background:#059669;font-size:0.76rem;" title="Seed from selected year, simulate, compare vs next year">
+                        ▶ Simulate &amp; Compare
+                    </button>
+                </div>
+            </div>
+        </div>
+
+      </form>
+    </div>
+    <!-- END RIGHT: LEVERS PANEL -->
+
 </div>
 
 <!-- 1. FLOATING LIVE PROS & CONS POPUP WHEN ADJUSTING ANY SLIDER -->
@@ -648,6 +717,22 @@ const indicatorReasons = {
         document.querySelectorAll('.te-tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById('tab-' + tabName).classList.add('active');
         document.getElementById('btn-' + tabName).classList.add('active');
+    }
+
+    function toggleSection(btn) {
+        btn.classList.toggle('collapsed');
+        const body = btn.nextElementSibling;
+        body.classList.toggle('hidden');
+    }
+
+    function updateDynLabel(year) {
+        const next = parseInt(year) + 1;
+        const el = document.getElementById('dynYearLabel');
+        if (el) el.innerText = 'Seed from WB ' + year + ' actuals → Simulate → Compare vs WB ' + next + ' actuals';
+    }
+
+    function syncLabel(id, val, unit) {
+        document.getElementById(id).innerText = val + unit;
     }
 
     // Comprehensive Pros, Cons & Indicator Cascade Dictionary for all 15 Levers
@@ -1032,6 +1117,122 @@ const indicatorReasons = {
             </button>
         </div>
     </div>
+</div>
+<% } %>
+
+<!-- 6. DYNAMIC WORLD BANK BACKTEST RESULT MODAL -->
+<%
+    String dynMessage = (String) request.getAttribute("dynMessage");
+    BacktestResult dynamicBacktestResult = (BacktestResult) request.getAttribute("dynamicBacktestResult");
+%>
+<% if (dynMessage != null) { %>
+<div id="dynToast" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid #059669;border-radius:8px;padding:12px 22px;z-index:10003;font-size:0.87rem;box-shadow:0 8px 24px rgba(0,0,0,0.7);max-width:640px;text-align:center;">
+    <%= dynMessage %>
+    <span onclick="document.getElementById('dynToast').style.display='none'" style="margin-left:14px;cursor:pointer;color:var(--muted);font-size:1rem;">&#x2715;</span>
+</div>
+<% } %>
+
+<% if (dynamicBacktestResult != null) {
+    double dynAcc = dynamicBacktestResult.meanAccuracyPct;
+    String dynAccColor = dynAcc >= 85 ? "#22c55e" : dynAcc >= 70 ? "#fbbf24" : "#ef4444";
+%>
+<div id="dynModalOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:10002;align-items:center;justify-content:center;">
+  <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #059669;border-radius:12px;width:860px;max-width:96%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.95);">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <h3 style="margin:0 0 4px;color:#059669;font-size:1.1rem;">
+            🌍 Dynamic World Bank Backtest — <%= dynamicBacktestResult.baselineYear %> → <%= dynamicBacktestResult.targetYear %>
+        </h3>
+        <div style="font-size:0.78rem;color:var(--muted);">
+            Seeded from real WB data for <strong style="color:var(--text);"><%= dynamicBacktestResult.baselineYear %></strong> &bull;
+            Simulated 4 quarters &bull;
+            Compared vs real WB data for <strong style="color:var(--text);"><%= dynamicBacktestResult.targetYear %></strong>
+        </div>
+      </div>
+      <button onclick="document.getElementById('dynModalOverlay').style.display='none'" style="background:#334155;color:#fff;border:none;border-radius:5px;padding:6px 14px;cursor:pointer;font-weight:700;flex-shrink:0;margin-left:16px;">✕ Close</button>
+    </div>
+
+    <!-- Summary banner -->
+    <div style="background:rgba(5,150,105,0.1);border-left:4px solid #059669;padding:10px 14px;border-radius:5px;margin-bottom:16px;font-size:0.82rem;line-height:1.5;">
+        <%= dynamicBacktestResult.summary %>
+    </div>
+
+    <!-- Accuracy bar -->
+    <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin-bottom:5px;">
+            <span>Overall Model Accuracy (vs World Bank ground truth)</span>
+            <span style="font-weight:800;font-size:0.95rem;color:<%= dynAccColor %>;"><%= String.format("%.1f", dynAcc) %>%</span>
+        </div>
+        <div style="background:#1e293b;border-radius:99px;height:10px;overflow:hidden;">
+            <div style="height:100%;width:<%= Math.max(0, Math.min(100, dynAcc)) %>%;background:<%= dynAccColor %>;border-radius:99px;"></div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:6px;font-size:0.74rem;color:var(--muted);">
+            <span>✅ PASS (≤5% err): <strong style="color:#22c55e;"><%= dynamicBacktestResult.passCount %></strong></span>
+            <span>⚠️ WARN (≤15%): <strong style="color:#fbbf24;"><%= dynamicBacktestResult.warnCount %></strong></span>
+            <span>❌ FAIL (>15%): <strong style="color:#ef4444;"><%= dynamicBacktestResult.failCount %></strong></span>
+        </div>
+    </div>
+
+    <!-- Comparison table -->
+    <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
+        <thead>
+            <tr style="background:#1e293b;">
+                <th style="padding:9px 10px;text-align:left;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Indicator</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">WB Actual (<%= dynamicBacktestResult.targetYear %>)</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Simulated</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Diff</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Error</th>
+                <th style="padding:9px 10px;text-align:center;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Verdict</th>
+            </tr>
+        </thead>
+        <tbody>
+        <% for (BacktestResult.IndicatorResult row : dynamicBacktestResult.rows) {
+            String rbg  = "PASS".equals(row.verdict) ? "rgba(34,197,94,0.06)"  :
+                          "WARN".equals(row.verdict) ? "rgba(251,191,36,0.06)" : "rgba(239,68,68,0.06)";
+            String rclr = "PASS".equals(row.verdict) ? "#22c55e" :
+                          "WARN".equals(row.verdict) ? "#fbbf24" : "#ef4444";
+            String rico = "PASS".equals(row.verdict) ? "✅" :
+                          "WARN".equals(row.verdict) ? "⚠️" : "❌";
+            double diff = row.simulatedValue - row.actualValue;
+        %>
+            <tr style="background:<%= rbg %>;border-bottom:1px solid #1e293b;">
+                <td style="padding:9px 10px;">
+                    <div style="color:#f8fafc;font-weight:600;"><%= row.indicatorName %></div>
+                    <div style="font-size:0.7rem;color:#64748b;margin-top:1px;"><%= row.note %></div>
+                </td>
+                <td style="padding:9px 10px;text-align:right;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;">
+                    <%= String.format("%.2f", row.actualValue) %>
+                    <span style="color:#475569;font-size:0.74rem;"> <%= row.unit %></span>
+                </td>
+                <td style="padding:9px 10px;text-align:right;font-weight:700;color:#38bdf8;font-variant-numeric:tabular-nums;">
+                    <%= String.format("%.2f", row.simulatedValue) %>
+                    <span style="color:#475569;font-size:0.74rem;"> <%= row.unit %></span>
+                </td>
+                <td style="padding:9px 10px;text-align:right;color:<%= diff >= 0 ? "#22c55e" : "#ef4444" %>;font-weight:600;font-variant-numeric:tabular-nums;">
+                    <%= diff >= 0 ? "+" : "" %><%= String.format("%.2f", diff) %>
+                </td>
+                <td style="padding:9px 10px;text-align:right;color:<%= rclr %>;font-weight:700;">
+                    <%= String.format("%.1f", row.absoluteErrorPct) %>%%
+                </td>
+                <td style="padding:9px 10px;text-align:center;font-size:1rem;" title="<%= row.verdict %>">
+                    <%= rico %>
+                </td>
+            </tr>
+        <% } %>
+        </tbody>
+    </table>
+
+    <div style="margin-top:14px;font-size:0.72rem;color:#475569;line-height:1.6;">
+        <strong style="color:#64748b;">Data sources:</strong>
+        WB NY.GDP.MKTP.KD.ZG (GDP growth) &bull; FP.CPI.TOTL.ZG (CPI) &bull; SL.UEM.TOTL.ZS (unemployment, ILO modelled) &bull;
+        PA.NUS.FCRF (FX) &bull; NE.EXP.GNFS.CD (exports) &bull; BN.CAB.XOKA.GD.ZS (current account) &bull;
+        GC.DOD.TOTL.GD.ZS (govt debt) &bull; FR.INR.LEND (lending rate)<br>
+        <em>Note: WB ILO unemployment estimates are typically 2–3pp higher than CMIE/PLFS figures — this creates structural divergence on that indicator.</em>
+    </div>
+
+  </div>
 </div>
 <% } %>
 

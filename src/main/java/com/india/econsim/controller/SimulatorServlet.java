@@ -2,6 +2,7 @@ package com.india.econsim.controller;
 
 import com.india.econsim.model.EconomyState;
 import com.india.econsim.service.BacktestResult;
+import com.india.econsim.service.DynamicBacktestService;
 import com.india.econsim.service.HistoricalDataFetcher;
 import com.india.econsim.service.RealityCheckService;
 import com.india.econsim.service.SimulationEngine;
@@ -73,6 +74,80 @@ public class SimulatorServlet extends HttpServlet {
             return;
         }
 
+        // ── LOAD HISTORICAL YEAR ─────────────────────────────────────────────
+        // Seeds the live session EconomyState entirely from WB data for chosen year.
+        // After this the user sees all real indicators in the dashboard and can
+        // adjust levers then click +1 Year to simulate forward.
+        if ("loadHistoricalYear".equals(action)) {
+            int loadYear = 2014;
+            try {
+                String y = req.getParameter("histYear");
+                if (y != null && !y.isEmpty()) loadYear = Integer.parseInt(y);
+            } catch (NumberFormatException ignored) {}
+
+            try {
+                com.google.gson.JsonObject root = HistoricalDataFetcher.loadFromFile(HISTORY_FILE);
+                EconomyState seeded = DynamicBacktestService.seedFromWorldBank(root, loadYear);
+                seeded.setLastTurnSummary(String.format(
+                    "📅 Loaded World Bank actuals for %d. All indicators now reflect real historical data. " +
+                    "Adjust any policy lever, then click +1 Year to simulate %d. " +
+                    "When done, click '🔬 Dynamic Reality Check' to compare your simulation against WB %d actuals.",
+                    loadYear, loadYear + 1, loadYear + 1));
+                session.setAttribute("econ", seeded);
+                req.setAttribute("loadYearMsg", "✅ Loaded WB actuals for " + loadYear + ". Simulate forward, then click Dynamic Reality Check.");
+            } catch (HistoricalDataFetcher.HistoricalDataException e) {
+                LOG.warning("loadHistoricalYear failed: " + e.getMessage());
+                req.setAttribute("loadYearMsg", "❌ " + e.getMessage() + " — Click '🌐 Fetch WB Data' first.");
+                EconomyState econ = (EconomyState) session.getAttribute("econ");
+                if (econ == null) econ = new EconomyState();
+                session.setAttribute("econ", econ);
+            }
+            req.setAttribute("activeTab", activeTab);
+            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+            return;
+        }
+
+        // ── DYNAMIC REALITY CHECK ─────────────────────────────────────────────
+        // Compares the CURRENT session EconomyState (simulated) against WB actuals
+        // for econ.getYear() — i.e. the year AFTER the baseline that was loaded.
+        if ("dynamicRealityCheck".equals(action)) {
+            EconomyState econ = (EconomyState) session.getAttribute("econ");
+            if (econ == null) econ = new EconomyState();
+
+            int compareYear = econ.getYear();   // the year the simulation is now in
+
+            try {
+                com.google.gson.JsonObject root = HistoricalDataFetcher.loadFromFile(HISTORY_FILE);
+                List<RealityCheckService.RealityRow> rows = buildDynamicRealityRows(econ, root, compareYear);
+
+                double totalErr = rows.stream().mapToDouble(r -> r.errorPct).sum();
+                double meanAcc  = rows.isEmpty() ? 0.0
+                        : Math.round((100.0 - totalErr / rows.size()) * 100.0) / 100.0;
+                long pass = rows.stream().filter(r -> "PASS".equals(r.verdict)).count();
+                long warn = rows.stream().filter(r -> "WARN".equals(r.verdict)).count();
+                long fail = rows.stream().filter(r -> "FAIL".equals(r.verdict)).count();
+
+                RealityCheckService.RealityCheckResult result = new RealityCheckService.RealityCheckResult();
+                result.rows.addAll(rows);
+                result.meanAccuracy = meanAcc;
+                result.summary = String.format(
+                    "Dynamic Reality Check — Simulated vs WB Actuals for %d | " +
+                    "Mean Accuracy: %.1f%% | ✅ PASS: %d | ⚠️ WARN: %d | ❌ FAIL: %d",
+                    compareYear, meanAcc, pass, warn, fail);
+
+                req.setAttribute("dynRealityResult", result);
+                req.setAttribute("dynRealityYear", compareYear);
+            } catch (HistoricalDataFetcher.HistoricalDataException e) {
+                LOG.warning("dynamicRealityCheck failed: " + e.getMessage());
+                req.setAttribute("loadYearMsg", "❌ " + e.getMessage() + " — Fetch WB data first.");
+            }
+
+            session.setAttribute("econ", econ);
+            req.setAttribute("activeTab", activeTab);
+            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+            return;
+        }
+
         // Handle Time Machine backtest — fetch data on demand then run backtest
         if ("fetchHistory".equals(action)) {
             try {
@@ -110,6 +185,35 @@ public class SimulatorServlet extends HttpServlet {
                     ". Click '🌐 Fetch World Bank Data' first.");
             } catch (IllegalArgumentException e) {
                 req.setAttribute("tmMessage", "❌ Invalid year: " + e.getMessage());
+            }
+
+            EconomyState econ = (EconomyState) session.getAttribute("econ");
+            if (econ == null) econ = new EconomyState();
+            session.setAttribute("econ", econ);
+            req.setAttribute("activeTab", activeTab);
+            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+            return;
+        }
+
+        // Handle Dynamic World Bank backtest — seed from real WB data for chosen year
+        if ("dynamicBacktest".equals(action)) {
+            int baselineYear = 2014;
+            try {
+                String yearParam = req.getParameter("dynYear");
+                if (yearParam != null && !yearParam.isEmpty()) {
+                    baselineYear = Integer.parseInt(yearParam);
+                }
+            } catch (NumberFormatException ignored) {}
+
+            try {
+                BacktestResult result = DynamicBacktestService.runDynamicBacktest(baselineYear, HISTORY_FILE);
+                req.setAttribute("dynamicBacktestResult", result);
+            } catch (HistoricalDataFetcher.HistoricalDataException e) {
+                LOG.warning("Dynamic backtest failed: " + e.getMessage());
+                req.setAttribute("dynMessage",
+                    "❌ " + e.getMessage() + " — Click '🌐 Fetch WB Data' first.");
+            } catch (IllegalArgumentException e) {
+                req.setAttribute("dynMessage", "❌ " + e.getMessage());
             }
 
             EconomyState econ = (EconomyState) session.getAttribute("econ");

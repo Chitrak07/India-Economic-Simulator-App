@@ -199,6 +199,15 @@ public class SimulationEngine {
         s.setFullYearGdpGrowth(round(0.7 * newAnnualGrowth + 0.3 * prevGrowth));
         s.recordChange("fullYearGdpGrowth", oldFyGdp, s.getFullYearGdpGrowth(), "Moving fiscal-year average combining current and prior quarter output.");
 
+        // Nominal GDP growth = real GDP growth + GDP deflator (approximated as 0.85 × CPI inflation)
+        double gdpDeflator = round(s.getInflationRate() * 0.85);
+        double oldNominal = s.getNominalGdpGrowthRate();
+        double newNominal = round(newAnnualGrowth + gdpDeflator);
+        s.setNominalGdpGrowthRate(newNominal);
+        s.recordChange("nominalGdpGrowthRate", oldNominal, newNominal,
+                String.format("Nominal GDP Growth = Real GDP (%.2f%%) + GDP Deflator (%.2f%% ≈ 0.85 × CPI %.2f%%). Nominal growth drives tax revenue buoyancy and debt-to-GDP dynamics.",
+                        newAnnualGrowth, gdpDeflator, s.getInflationRate()));
+
         double qtrRealFactor = 1.0 + (s.getGdpGrowthRate() / 100.0);
         double oldConstGdp = s.getGdpConstantPrices();
         s.setGdpConstantPrices(round(oldConstGdp * qtrRealFactor));
