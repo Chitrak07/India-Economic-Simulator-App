@@ -1,11 +1,14 @@
 package com.india.econsim.model;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@SuppressWarnings("unused") // Public model API — getters/setters consumed via JSP EL & reflection
 public class EconomyState implements Serializable {
+    @Serial
     private static final long serialVersionUID = 2L;
 
     private int year = 2025;
@@ -159,8 +162,8 @@ public class EconomyState implements Serializable {
     private double prevInterestRate = 6.25;           // repo before Apr 2025 cut
     private double prevInfraSpend = 3.80;             // FY2024-25 capex % GDP
     private String lastTurnSummary = "Baseline initialized to FY 2025-26 actuals (NSO 2nd AE, RBI MPC Apr 2025, Union Budget 2025-26). Adjust any policy slider to inspect Pros & Cons, or advance a quarter to see causal explanations.";
-    private Map<String, Double> deltas = new HashMap<>();
-    private Map<String, String> reasons = new LinkedHashMap<>();
+    private final Map<String, Double> deltas = new HashMap<>();
+    private final Map<String, String> reasons = new LinkedHashMap<>();
 
     public EconomyState() {}
 
