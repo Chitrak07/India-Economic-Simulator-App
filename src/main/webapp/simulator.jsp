@@ -572,6 +572,32 @@ const indicatorReasons = {
     <% } %>
 };
 
+    // Inject ✏️ edit buttons into every table row that has a Why? button
+    document.querySelectorAll('.te-table tbody tr').forEach(function(row) {
+        const whyBtn = row.querySelector('.why-btn');
+        if (!whyBtn) return;
+        const valCell = row.querySelector('.val-col');
+        if (!valCell) return;
+        const labelCell = row.cells[0];
+        const currentVal = valCell.innerText.trim();
+        const label = labelCell ? labelCell.innerText.trim() : '';
+        // derive field key from the row's onclick attribute
+        const onclk = row.getAttribute('onclick') || '';
+        const m = onclk.match(/'([a-zA-Z]+)'\.?\s*\)\s*$/);
+        if (!m) return;
+        const fieldKey = m[1];
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'edit-btn';
+        editBtn.innerHTML = '&#9998;';
+        editBtn.title = 'Override value for backtesting';
+        editBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openEditModal(fieldKey, label, currentVal, '');
+        });
+        whyBtn.parentNode.insertBefore(editBtn, whyBtn.nextSibling);
+    });
+
     function showWhy(title, key) {
         document.getElementById('modalIndTitle').innerText = "🔍 Why Did " + title + " Change?";
         document.getElementById('modalIndBody').innerText = indicatorReasons[key] ||

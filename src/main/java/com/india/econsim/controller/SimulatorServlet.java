@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +18,8 @@ import java.util.Map;
 
 @WebServlet(name = "SimulatorServlet", urlPatterns = {"/simulate"})
 public class SimulatorServlet extends HttpServlet {
-    private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = -6852783344442364087L;
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -44,6 +46,23 @@ public class SimulatorServlet extends HttpServlet {
         // 1. Handle Reset Action
         if ("reset".equals(action)) {
             session.setAttribute("econ", new EconomyState());
+            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+            return;
+        }
+
+        // 2. Handle Manual Indicator Override (backtesting seed)
+        if ("editIndicator".equals(action)) {
+            EconomyState econ = (EconomyState) session.getAttribute("econ");
+            if (econ == null) econ = new EconomyState();
+            String fieldName = req.getParameter("fieldName");
+            double newVal = parseDouble(req, "fieldValue", Double.NaN);
+            if (fieldName != null && !Double.isNaN(newVal)) {
+                applyIndicatorOverride(econ, fieldName, newVal);
+                econ.setLastTurnSummary(String.format(
+                    "[Manual Override] %s set to %.4f for backtesting. Adjust policy sliders and click +1 Quarter / +1 Year to simulate forward.",
+                    fieldName, newVal));
+            }
+            session.setAttribute("econ", econ);
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
             return;
         }
@@ -262,6 +281,102 @@ public class SimulatorServlet extends HttpServlet {
             double endVal = entry.getValue();
             double netDelta = Math.round((endVal - startVal) * 100.0) / 100.0;
             deltas.put(key, netDelta);
+        }
+    }
+
+    /**
+     * Directly sets any EconomyState indicator field by name.
+     * Used for manual backtesting overrides via the Edit modal.
+     */
+    private void applyIndicatorOverride(EconomyState s, String field, double v) {
+        switch (field) {
+            // GDP
+            case "gdpGrowthRate":              s.setGdpGrowthRate(v); break;
+            case "gdpAnnualGrowthRate":        s.setGdpAnnualGrowthRate(v); s.setPrevAnnualGdpGrowth(v); break;
+            case "fullYearGdpGrowth":          s.setFullYearGdpGrowth(v); break;
+            case "gdpUsdBillion":              s.setGdpUsdBillion(v); break;
+            case "gdpConstantPrices":          s.setGdpConstantPrices(v); break;
+            case "grossFixedCapitalFormation": s.setGrossFixedCapitalFormation(v); break;
+            case "gdpPerCapita":               s.setGdpPerCapita(v); break;
+            case "gdpPerCapitaPpp":            s.setGdpPerCapitaPpp(v); break;
+            case "gnpInrCrore":                s.setGnpInrCrore(v); break;
+            case "gdpFromAgriculture":         s.setGdpFromAgriculture(v); break;
+            case "gdpFromManufacturing":       s.setGdpFromManufacturing(v); break;
+            case "gdpFromConstruction":        s.setGdpFromConstruction(v); break;
+            case "gdpFromPublicAdmin":         s.setGdpFromPublicAdmin(v); break;
+            case "gdpFromUtilities":           s.setGdpFromUtilities(v); break;
+            case "gdpFromMining":              s.setGdpFromMining(v); break;
+            // Labour
+            case "unemploymentRate":           s.setUnemploymentRate(v); break;
+            case "employmentRate":             s.setEmploymentRate(v); break;
+            case "laborForceParticipation":    s.setLaborForceParticipation(v); break;
+            case "populationMillion":          s.setPopulationMillion(v); break;
+            case "minimumWages":               s.setMinimumWages(v); break;
+            case "monthlyWages":               s.setMonthlyWages(v); break;
+            // Prices
+            case "inflationRate":              s.setInflationRate(v); break;
+            case "cpiPoints":                  s.setCpiPoints(v); break;
+            case "consumerFoodPriceIndex":     s.setConsumerFoodPriceIndex(v); break;
+            case "cpiHousingUtilities":        s.setCpiHousingUtilities(v); break;
+            case "cpiTransportation":          s.setCpiTransportation(v); break;
+            case "cpiEducation":               s.setCpiEducation(v); break;
+            case "cpiRestaurants":             s.setCpiRestaurants(v); break;
+            case "wholesalePriceIndex":        s.setWholesalePriceIndex(v); break;
+            case "wpiFoodYoY":                 s.setWpiFoodYoY(v); break;
+            case "producerPrices":             s.setProducerPrices(v); break;
+            case "exportPrices":               s.setExportPrices(v); break;
+            case "importPrices":               s.setImportPrices(v); break;
+            // Money
+            case "currencyUsdInr":             s.setCurrencyUsdInr(v); break;
+            case "stockMarketSensex":          s.setStockMarketSensex(v); break;
+            case "yieldCurveSpread":           s.setYieldCurveSpread(v); break;
+            case "interbankRate":              s.setInterbankRate(v); break;
+            case "bankLoanGrowthYoY":          s.setBankLoanGrowthYoY(v); break;
+            case "moneySupplyM1":              s.setMoneySupplyM1(v); break;
+            case "foreignExchangeReserves":    s.setForeignExchangeReserves(v); break;
+            // Trade
+            case "balanceOfTrade":             s.setBalanceOfTrade(v); break;
+            case "exportsUsdBillion":          s.setExportsUsdBillion(v); break;
+            case "importsUsdBillion":          s.setImportsUsdBillion(v); break;
+            case "currentAccount":             s.setCurrentAccount(v); break;
+            case "currentAccountToGdp":        s.setCurrentAccountToGdp(v); break;
+            case "termsOfTrade":               s.setTermsOfTrade(v); break;
+            case "foreignDirectInvestment":    s.setForeignDirectInvestment(v); break;
+            case "remittancesUsdBillion":      s.setRemittancesUsdBillion(v); break;
+            case "externalDebtUsdBillion":     s.setExternalDebtUsdBillion(v); break;
+            case "touristArrivals":            s.setTouristArrivals(v); break;
+            // Government
+            case "governmentBudget":           s.setGovernmentBudget(v); break;
+            case "governmentDebtToGdp":        s.setGovernmentDebtToGdp(v); break;
+            case "governmentSpendingToGdp":    s.setGovernmentSpendingToGdp(v); break;
+            case "governmentRevenues":         s.setGovernmentRevenues(v); break;
+            case "fiscalExpenditure":          s.setFiscalExpenditure(v); break;
+            case "corruptionIndex":            s.setCorruptionIndex(v); break;
+            // Business
+            case "businessConfidence":         s.setBusinessConfidence(v); break;
+            case "manufacturingPMI":           s.setManufacturingPMI(v); break;
+            case "servicesPMI":                s.setServicesPMI(v); break;
+            case "compositePMI":               s.setCompositePMI(v); break;
+            case "netBusinessFormations":      s.setNetBusinessFormations(v); break;
+            case "industrialProductionYoY":    s.setIndustrialProductionYoY(v); break;
+            case "manufacturingProductionYoY": s.setManufacturingProductionYoY(v); break;
+            case "capacityUtilization":        s.setCapacityUtilization(v); break;
+            case "passengerVehicleSales":       s.setPassengerVehicleSales(v); break;
+            case "depositGrowthYoY":           s.setDepositGrowthYoY(v); break;
+            // Consumer
+            case "consumerConfidence":         s.setConsumerConfidence(v); break;
+            case "consumerDurablesIndex":       s.setConsumerDurablesIndex(v); break;
+            case "retailSalesGrowthYoY":        s.setRetailSalesGrowthYoY(v); break;
+            case "bankLendingRate":             s.setBankLendingRate(v); break;
+            case "gasolinePrices":              s.setGasolinePrices(v); break;
+            case "householdsDebtToGdp":         s.setHouseholdsDebtToGdp(v); break;
+            // Housing
+            case "housingIndex":                s.setHousingIndex(v); break;
+            case "infrastructureOutputYoY":     s.setInfrastructureOutputYoY(v); break;
+            case "residentialPropertyPricesYoY":s.setResidentialPropertyPricesYoY(v); break;
+            // Health
+            case "hospitalBedsPer1000":         s.setHospitalBedsPer1000(v); break;
+            case "publicHealthReadinessIndex":  s.setPublicHealthReadinessIndex(v); break;
         }
     }
 }
