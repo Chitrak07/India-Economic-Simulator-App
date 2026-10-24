@@ -2,6 +2,7 @@ package com.india.econsim.controller;
 
 import com.india.econsim.model.EconomyState;
 import com.india.econsim.service.SimulationEngine;
+import com.india.econsim.service.RealityCheckService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -46,6 +47,18 @@ public class SimulatorServlet extends HttpServlet {
         // 1. Handle Reset Action
         if ("reset".equals(action)) {
             session.setAttribute("econ", new EconomyState());
+            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+            return;
+        }
+
+        // Handle Check With Reality backtest
+        if ("checkReality".equals(action)) {
+            RealityCheckService.RealityCheckResult result = RealityCheckService.run();
+            req.setAttribute("realityResult", result);
+            req.setAttribute("activeTab", activeTab);
+            EconomyState econ = (EconomyState) session.getAttribute("econ");
+            if (econ == null) econ = new EconomyState();
+            session.setAttribute("econ", econ);
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
             return;
         }

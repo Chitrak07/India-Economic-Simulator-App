@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.india.econsim.model.EconomyState" %>
+<%@ page import="com.india.econsim.service.RealityCheckService" %>
+<%@ page import="java.util.List" %>
 <%
     EconomyState econ = (EconomyState) session.getAttribute("econ");
     if (econ == null) {
@@ -62,6 +64,7 @@
         .b-qtr { background: var(--accent); }
         .b-yr { background: #2563eb; }
         .b-rst { background: #475569; }
+        .b-cwr { background: #0d9488; font-size: 0.78rem; }
 
         /* Trading Economics Tab Bar */
         .te-tabs {
@@ -332,6 +335,7 @@
         </div>
             <button type="submit" name="action" value="advanceQuarter" class="b-qtr">+1 Quarter</button>
             <button type="submit" name="action" value="advanceYear" class="b-yr">+1 Year</button>
+            <button type="submit" name="action" value="checkReality" class="b-cwr" title="FY2015-16 → 2016-17 Backtest vs CSO/RBI Actuals">🔬 Check With Reality</button>
             <button type="submit" name="action" value="reset" class="b-rst">Reset</button>
         </div>
     </form>
@@ -848,6 +852,57 @@ const indicatorReasons = {
         popup.style.display = 'block';
     }
 </script>
+
+<!-- 4. CHECK WITH REALITY RESULTS MODAL -->
+<%
+    RealityCheckService.RealityCheckResult realityResult =
+        (RealityCheckService.RealityCheckResult) request.getAttribute("realityResult");
+    if (realityResult != null) {
+%>
+<div id="realityModalOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10002;align-items:center;justify-content:center;">
+    <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #0d9488;border-radius:10px;width:780px;max-width:95%;max-height:88vh;overflow-y:auto;padding:22px;box-shadow:0 15px 40px rgba(0,0,0,0.9);">
+        <h3 style="margin-top:0;color:#0d9488;font-size:1.05rem;">&#128300; Check With Reality &mdash; FY 2015-16 &rarr; 2016-17 Backtest</h3>
+        <div style="background:rgba(13,148,136,0.1);border-left:4px solid #0d9488;padding:10px 14px;border-radius:5px;margin-bottom:14px;font-size:0.83rem;line-height:1.5;">
+            <%= realityResult.summary %>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
+            <thead>
+                <tr style="background:#1e293b;">
+                    <th style="padding:8px;text-align:left;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Indicator</th>
+                    <th style="padding:8px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">CSO/RBI Actual</th>
+                    <th style="padding:8px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Simulated</th>
+                    <th style="padding:8px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Error %</th>
+                    <th style="padding:8px;text-align:center;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Verdict</th>
+                </tr>
+            </thead>
+            <tbody>
+            <% for (RealityCheckService.RealityRow row : realityResult.rows) {
+                String rowColor = row.verdict.equals("PASS") ? "rgba(34,197,94,0.08)" :
+                                  row.verdict.equals("WARN") ? "rgba(251,191,36,0.08)" : "rgba(239,68,68,0.08)";
+                String verdictColor = row.verdict.equals("PASS") ? "#22c55e" :
+                                      row.verdict.equals("WARN") ? "#fbbf24" : "#ef4444";
+                String verdictIcon  = row.verdict.equals("PASS") ? "&#10003; PASS" :
+                                      row.verdict.equals("WARN") ? "&#9888; WARN" : "&#10007; FAIL";
+            %>
+                <tr style="background:<%= rowColor %>;border-bottom:1px solid #1e293b;">
+                    <td style="padding:8px;color:#f8fafc;"><%= row.indicator %></td>
+                    <td style="padding:8px;text-align:right;font-weight:700;color:#fff;"><%= String.format("%.2f", row.actual) %> <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span></td>
+                    <td style="padding:8px;text-align:right;font-weight:700;color:#38bdf8;"><%= String.format("%.2f", row.simulated) %> <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span></td>
+                    <td style="padding:8px;text-align:right;color:<%= verdictColor %>;"><%= String.format("%.1f", row.errorPct) %>%%</td>
+                    <td style="padding:8px;text-align:center;font-weight:700;color:<%= verdictColor %>;font-size:0.8rem;"><%= verdictIcon %></td>
+                </tr>
+            <% } %>
+            </tbody>
+        </table>
+        <div style="margin-top:14px;font-size:0.75rem;color:#64748b;">
+            PASS = error &le;5%% &bull; WARN = error &le;15%% &bull; FAIL = error &gt;15%% &bull; Sources: CSO First Advance Estimate, RBI Annual Report, CMIE PLFS, BSE
+        </div>
+        <div style="text-align:right;margin-top:14px;">
+            <button onclick="document.getElementById('realityModalOverlay').style.display='none'" style="background:#475569;color:#fff;border:none;border-radius:5px;padding:7px 18px;font-weight:700;cursor:pointer;">Close</button>
+        </div>
+    </div>
+</div>
+<% } %>
 
 <!-- 3. EDIT INDICATOR MODAL (manual override for backtesting) -->
 <div id="editModalOverlay" onclick="closeEditModal()">

@@ -73,7 +73,7 @@ public class EconomyState implements Serializable {
     private double importPrices = 159.80;
 
     // Money & Markets Tab
-    private double currencyUsdInr = 84.40;
+    private double currencyUsdInr = 94.40;
     private double stockMarketSensex = 73123.83;
     private double yieldCurveSpread = 0.45;
     private double interbankRate = 6.63;
