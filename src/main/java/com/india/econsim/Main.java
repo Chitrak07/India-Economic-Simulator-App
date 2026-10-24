@@ -8,18 +8,23 @@ import java.io.File;
 
 public class Main {
     public static void main(String[] args) throws Exception {
+        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8080"));
+
         Tomcat tomcat = new Tomcat();
-        tomcat.setPort(8080);
+        tomcat.setPort(port);
         tomcat.getConnector();
 
-        String webappDir = new File("src/main/webapp").getAbsolutePath();
-        Context ctx = tomcat.addWebapp("", webappDir);
+        // Works both locally (src/main/webapp) and from packaged jar (target/webapp)
+        String webappDir = new File("src/main/webapp").exists()
+                ? new File("src/main/webapp").getAbsolutePath()
+                : new File("target/webapp").getAbsolutePath();
 
+        Context ctx = tomcat.addWebapp("", webappDir);
         Tomcat.addServlet(ctx, "SimulatorServlet", new SimulatorServlet());
         ctx.addServletMappingDecoded("/simulate", "SimulatorServlet");
 
         tomcat.start();
-        System.out.println("Server started at http://localhost:8080/simulator.jsp");
+        System.out.println("Server started on port " + port);
         tomcat.getServer().await();
     }
 }
