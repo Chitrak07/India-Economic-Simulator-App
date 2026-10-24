@@ -117,6 +117,63 @@
             width: 520px; max-width: 92%; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
         .reason-modal h3 { margin-top: 0; color: var(--blue); }
+
+        /* EDIT INDICATOR MODAL */
+        #editModalOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.72); z-index: 10001; align-items: center; justify-content: center;
+        }
+        .edit-modal {
+            background: var(--panel); border: 2px solid var(--accent); border-radius: 10px;
+            width: 420px; max-width: 92%; padding: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.85);
+        }
+        .edit-modal h3 { margin-top: 0; color: var(--accent); font-size: 1rem; }
+        .edit-modal input[type=number] {
+            width: 100%; padding: 9px 12px; background: #0f172a; border: 1px solid var(--border);
+            border-radius: 5px; color: var(--text); font-size: 1rem; margin: 10px 0 6px 0;
+        }
+        .edit-modal .hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
+        .edit-modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
+        .edit-modal .btn-row button {
+            padding: 7px 18px; border: none; border-radius: 5px; font-weight: 700;
+            cursor: pointer; font-size: 0.85rem; color: #fff;
+        }
+        .btn-save { background: var(--accent); }
+        .btn-cancel { background: #475569; }
+        .edit-btn {
+            background: none; border: 1px solid #f97316; color: #f97316;
+            border-radius: 4px; padding: 2px 6px; font-size: 0.70rem; cursor: pointer;
+            font-weight: 700; opacity: 0.75;
+        }
+        .edit-btn:hover { opacity: 1; }
+
+        /* EDIT INDICATOR MODAL */
+        #editModalOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.72); z-index: 10001; align-items: center; justify-content: center;
+        }
+        .edit-modal {
+            background: var(--panel); border: 2px solid var(--accent); border-radius: 10px;
+            width: 420px; max-width: 92%; padding: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.85);
+        }
+        .edit-modal h3 { margin-top: 0; color: var(--accent); font-size: 1rem; }
+        .edit-modal input[type=number] {
+            width: 100%; padding: 9px 12px; background: #0f172a; border: 1px solid var(--border);
+            border-radius: 5px; color: var(--text); font-size: 1rem; margin: 10px 0 14px 0;
+        }
+        .edit-modal .hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
+        .edit-modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
+        .edit-modal .btn-row button {
+            padding: 7px 18px; border: none; border-radius: 5px; font-weight: 700;
+            cursor: pointer; font-size: 0.85rem; color: #fff;
+        }
+        .btn-save { background: var(--accent); }
+        .btn-cancel { background: #475569; }
+        .edit-btn {
+            background: none; border: 1px solid var(--accent); color: var(--accent);
+            border-radius: 4px; padding: 2px 7px; font-size: 0.72rem; cursor: pointer;
+            font-weight: 600; margin-left: 4px;
+        }
     </style>
 </head>
 <body>
@@ -236,7 +293,43 @@
                    oninput="onPolicyAdjust('tourismSpend', this, '%')">
         </div>
 
-        <div class="btn-group">
+        <h3 style="margin-top:12px;">Exogenous Shocks</h3>
+        <div class="slider-row">
+            <label><span>Brent Crude Oil Price ($/bbl)</span><strong id="lbl_oil"><%= econ.getBrentCrudePrice() %></strong></label>
+            <input type="range" name="brentCrudePrice" min="20" max="150" step="1"
+                   data-baseline="<%= econ.getBrentCrudePrice() %>" value="<%= econ.getBrentCrudePrice() %>"
+                   oninput="syncLabel('lbl_oil', this.value, '')">
+        </div>
+        <div class="slider-row">
+            <label><span>Monsoon Index (100=Normal)</span><strong id="lbl_mon"><%= econ.getMonsoonIndex() %></strong></label>
+            <input type="range" name="monsoonIndex" min="70" max="130" step="1"
+                   data-baseline="<%= econ.getMonsoonIndex() %>" value="<%= econ.getMonsoonIndex() %>"
+                   oninput="syncLabel('lbl_mon', this.value, '')">
+        </div>
+        <div class="slider-row">
+            <label><span>M1 Shock % (0=none, -19=Demonetisation)</span><strong id="lbl_m1s"><%= econ.getM1ShockPct() %></strong></label>
+            <input type="range" name="m1ShockPct" min="-25" max="10" step="1"
+                   data-baseline="0" value="<%= econ.getM1ShockPct() %>"
+                   oninput="syncLabel('lbl_m1s', this.value, '')">
+        </div>
+        <div class="slider-row">
+            <label><span>Banking NPA % (Gross NPA / Advances)</span><strong id="lbl_npa"><%= econ.getBankingNpaPct() %>%</strong></label>
+            <input type="range" name="bankingNpaPct" min="2" max="20" step="0.5"
+                   data-baseline="<%= econ.getBankingNpaPct() %>" value="<%= econ.getBankingNpaPct() %>"
+                   oninput="syncLabel('lbl_npa', this.value, '%')">
+        </div>
+        <div class="slider-row">
+            <label><span>Tax Buoyancy Coefficient</span><strong id="lbl_tbc"><%= econ.getTaxBuoyancyCoeff() %></strong></label>
+            <input type="range" name="taxBuoyancyCoeff" min="0.6" max="1.5" step="0.05"
+                   data-baseline="<%= econ.getTaxBuoyancyCoeff() %>" value="<%= econ.getTaxBuoyancyCoeff() %>"
+                   oninput="syncLabel('lbl_tbc', this.value, '')">
+        </div>
+        <div class="slider-row">
+            <label><span>Neutral Repo Rate r* (%)</span><strong id="lbl_rstar"><%= econ.getNeutralRepoRate() %>%</strong></label>
+            <input type="range" name="neutralRepoRate" min="4.0" max="9.0" step="0.25"
+                   data-baseline="<%= econ.getNeutralRepoRate() %>" value="<%= econ.getNeutralRepoRate() %>"
+                   oninput="syncLabel('lbl_rstar', this.value, '%')">
+        </div>
             <button type="submit" name="action" value="advanceQuarter" class="b-qtr">+1 Quarter</button>
             <button type="submit" name="action" value="advanceYear" class="b-yr">+1 Year</button>
             <button type="submit" name="action" value="reset" class="b-rst">Reset</button>
@@ -256,25 +349,25 @@
         <!-- TAB 1: OVERVIEW -->
         <div id="tab-Overview" class="tab-pane <%= "Overview".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
-                <thead><tr><th>Overview Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
+                <thead><tr><th>Overview Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why? / Edit</th></tr></thead>
                 <tbody>
-                    <tr onclick="showWhy('Currency (USD/INR)', 'currencyUsdInr')"><td>Currency (USD/INR)</td><td class="val-col"><%= econ.getCurrencyUsdInr() %></td><td><%= fmtDelta(econ, "currencyUsdInr", true) %></td><td>INR</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Stock Market (BSE Sensex)', 'stockMarketSensex')"><td>Stock Market (BSE Sensex)</td><td class="val-col"><%= econ.getStockMarketSensex() %></td><td><%= fmtDelta(econ, "stockMarketSensex", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('GDP Growth Rate QoQ', 'gdpGrowthRate')"><td>GDP Growth Rate</td><td class="val-col"><%= econ.getGdpGrowthRate() %></td><td><%= fmtDelta(econ, "gdpGrowthRate", false) %></td><td>% QoQ</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('GDP Annual Growth Rate YoY', 'gdpAnnualGrowthRate')"><td>GDP Annual Growth Rate</td><td class="val-col"><%= econ.getGdpAnnualGrowthRate() %></td><td><%= fmtDelta(econ, "gdpAnnualGrowthRate", false) %></td><td>% YoY</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Unemployment Rate', 'unemploymentRate')"><td>Unemployment Rate</td><td class="val-col"><%= econ.getUnemploymentRate() %></td><td><%= fmtDelta(econ, "unemploymentRate", true) %></td><td>%</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('CPI Inflation Rate YoY', 'inflationRate')"><td>Inflation Rate</td><td class="val-col"><%= econ.getInflationRate() %></td><td><%= fmtDelta(econ, "inflationRate", true) %></td><td>% YoY</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
+                    <tr onclick="showWhy('Currency (USD/INR)', 'currencyUsdInr')"><td>Currency (USD/INR)</td><td class="val-col"><%= econ.getCurrencyUsdInr() %></td><td><%= fmtDelta(econ, "currencyUsdInr", true) %></td><td>INR</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('currencyUsdInr','Currency USD/INR','<%= econ.getCurrencyUsdInr() %>','INR')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Stock Market (BSE Sensex)', 'stockMarketSensex')"><td>Stock Market (BSE Sensex)</td><td class="val-col"><%= econ.getStockMarketSensex() %></td><td><%= fmtDelta(econ, "stockMarketSensex", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('stockMarketSensex','BSE Sensex','<%= econ.getStockMarketSensex() %>','pts')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('GDP Growth Rate QoQ', 'gdpGrowthRate')"><td>GDP Growth Rate</td><td class="val-col"><%= econ.getGdpGrowthRate() %></td><td><%= fmtDelta(econ, "gdpGrowthRate", false) %></td><td>% QoQ</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('gdpGrowthRate','GDP Growth Rate QoQ','<%= econ.getGdpGrowthRate() %>','%')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('GDP Annual Growth Rate YoY', 'gdpAnnualGrowthRate')"><td>GDP Annual Growth Rate</td><td class="val-col"><%= econ.getGdpAnnualGrowthRate() %></td><td><%= fmtDelta(econ, "gdpAnnualGrowthRate", false) %></td><td>% YoY</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('gdpAnnualGrowthRate','GDP Annual Growth YoY','<%= econ.getGdpAnnualGrowthRate() %>','%')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Unemployment Rate', 'unemploymentRate')"><td>Unemployment Rate</td><td class="val-col"><%= econ.getUnemploymentRate() %></td><td><%= fmtDelta(econ, "unemploymentRate", true) %></td><td>%</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('unemploymentRate','Unemployment Rate','<%= econ.getUnemploymentRate() %>','%')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('CPI Inflation Rate YoY', 'inflationRate')"><td>Inflation Rate</td><td class="val-col"><%= econ.getInflationRate() %></td><td><%= fmtDelta(econ, "inflationRate", true) %></td><td>% YoY</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('inflationRate','Inflation Rate','<%= econ.getInflationRate() %>','%')">&#9998;</button></td></tr>
                     <tr onclick="showWhy('RBI Repo Interest Rate', 'interbankRate')"><td>Interest Rate (RBI Repo)</td><td class="val-col"><%= econ.getInterestRate() %></td><td>—</td><td>%</td><td><span class="badge b-lag">Policy</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Cash Reserve Ratio (CRR)', 'moneySupplyM1')"><td>Cash Reserve Ratio</td><td class="val-col"><%= econ.getCashReserveRatio() %></td><td>—</td><td>%</td><td><span class="badge b-lag">Policy</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Balance of Trade', 'balanceOfTrade')"><td>Balance of Trade</td><td class="val-col"><%= econ.getBalanceOfTrade() %></td><td><%= fmtDelta(econ, "balanceOfTrade", false) %></td><td>USD Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Current Account', 'currentAccount')"><td>Current Account</td><td class="val-col"><%= econ.getCurrentAccount() %></td><td><%= fmtDelta(econ, "currentAccount", false) %></td><td>USD Million</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Current Account to GDP', 'currentAccountToGdp')"><td>Current Account to GDP</td><td class="val-col"><%= econ.getCurrentAccountToGdp() %></td><td><%= fmtDelta(econ, "currentAccountToGdp", false) %></td><td>% of GDP</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Government Debt to GDP', 'governmentDebtToGdp')"><td>Government Debt to GDP</td><td class="val-col"><%= econ.getGovernmentDebtToGdp() %></td><td><%= fmtDelta(econ, "governmentDebtToGdp", true) %></td><td>% of GDP</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Government Budget Balance', 'governmentBudget')"><td>Government Budget</td><td class="val-col"><%= econ.getGovernmentBudget() %></td><td><%= fmtDelta(econ, "governmentBudget", false) %></td><td>% of GDP</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Business Confidence Index', 'businessConfidence')"><td>Business Confidence</td><td class="val-col"><%= econ.getBusinessConfidence() %></td><td><%= fmtDelta(econ, "businessConfidence", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Manufacturing PMI', 'manufacturingPMI')"><td>Manufacturing PMI</td><td class="val-col"><%= econ.getManufacturingPMI() %></td><td><%= fmtDelta(econ, "manufacturingPMI", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Services PMI', 'servicesPMI')"><td>Services PMI</td><td class="val-col"><%= econ.getServicesPMI() %></td><td><%= fmtDelta(econ, "servicesPMI", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Consumer Confidence Index', 'consumerConfidence')"><td>Consumer Confidence</td><td class="val-col"><%= econ.getConsumerConfidence() %></td><td><%= fmtDelta(econ, "consumerConfidence", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
+                    <tr onclick="showWhy('Balance of Trade', 'balanceOfTrade')"><td>Balance of Trade</td><td class="val-col"><%= econ.getBalanceOfTrade() %></td><td><%= fmtDelta(econ, "balanceOfTrade", false) %></td><td>USD Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('balanceOfTrade','Balance of Trade','<%= econ.getBalanceOfTrade() %>','$B')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Current Account', 'currentAccount')"><td>Current Account</td><td class="val-col"><%= econ.getCurrentAccount() %></td><td><%= fmtDelta(econ, "currentAccount", false) %></td><td>USD Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('currentAccount','Current Account','<%= econ.getCurrentAccount() %>','$B')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Current Account to GDP', 'currentAccountToGdp')"><td>Current Account to GDP</td><td class="val-col"><%= econ.getCurrentAccountToGdp() %></td><td><%= fmtDelta(econ, "currentAccountToGdp", false) %></td><td>% of GDP</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('currentAccountToGdp','Current Account/GDP','<%= econ.getCurrentAccountToGdp() %>','%')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Government Debt to GDP', 'governmentDebtToGdp')"><td>Government Debt to GDP</td><td class="val-col"><%= econ.getGovernmentDebtToGdp() %></td><td><%= fmtDelta(econ, "governmentDebtToGdp", true) %></td><td>% of GDP</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('governmentDebtToGdp','Govt Debt/GDP','<%= econ.getGovernmentDebtToGdp() %>','%')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Government Budget Balance', 'governmentBudget')"><td>Government Budget</td><td class="val-col"><%= econ.getGovernmentBudget() %></td><td><%= fmtDelta(econ, "governmentBudget", false) %></td><td>% of GDP</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('governmentBudget','Govt Budget Balance','<%= econ.getGovernmentBudget() %>','%')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Business Confidence Index', 'businessConfidence')"><td>Business Confidence</td><td class="val-col"><%= econ.getBusinessConfidence() %></td><td><%= fmtDelta(econ, "businessConfidence", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('businessConfidence','Business Confidence','<%= econ.getBusinessConfidence() %>','pts')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Manufacturing PMI', 'manufacturingPMI')"><td>Manufacturing PMI</td><td class="val-col"><%= econ.getManufacturingPMI() %></td><td><%= fmtDelta(econ, "manufacturingPMI", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('manufacturingPMI','Manufacturing PMI','<%= econ.getManufacturingPMI() %>','pts')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Services PMI', 'servicesPMI')"><td>Services PMI</td><td class="val-col"><%= econ.getServicesPMI() %></td><td><%= fmtDelta(econ, "servicesPMI", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('servicesPMI','Services PMI','<%= econ.getServicesPMI() %>','pts')">&#9998;</button></td></tr>
+                    <tr onclick="showWhy('Consumer Confidence Index', 'consumerConfidence')"><td>Consumer Confidence</td><td class="val-col"><%= econ.getConsumerConfidence() %></td><td><%= fmtDelta(econ, "consumerConfidence", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button> <button type="button" class="edit-btn" onclick="event.stopPropagation();openEditModal('consumerConfidence','Consumer Confidence','<%= econ.getConsumerConfidence() %>','pts')">&#9998;</button></td></tr>
                 </tbody>
             </table>
         </div>
@@ -693,6 +786,10 @@ const indicatorReasons = {
         }
     };
 
+    function syncLabel(id, val, suffix) {
+        document.getElementById(id).innerText = val + suffix;
+    }
+
     function onPolicyAdjust(key, inputEl, unit) {
         const info = policyKnowledgeBase[key];
         if (!info) return;
@@ -724,6 +821,54 @@ const indicatorReasons = {
 
         popup.style.display = 'block';
     }
+</script>
+
+<!-- 3. EDIT INDICATOR MODAL (manual override for backtesting) -->
+<div id="editModalOverlay" onclick="closeEditModal()">
+    <div class="edit-modal" onclick="event.stopPropagation()">
+        <h3>✏️ Override Indicator Value</h3>
+        <div id="editModalDesc" style="font-size:0.83rem;color:var(--muted);margin-bottom:4px;"></div>
+        <input type="number" id="editModalInput" step="any">
+        <div class="hint">⚠️ This directly seeds the simulator state. Use historical actuals for backtesting, then click +1 Quarter / +1 Year to simulate forward.</div>
+        <div class="btn-row">
+            <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="btn-save" onclick="submitEditIndicator()">Apply Override</button>
+        </div>
+    </div>
+</div>
+<!-- Hidden form for edit-indicator POST -->
+<form id="editIndicatorForm" action="<%= request.getContextPath() %>/simulate" method="post" style="display:none">
+    <input type="hidden" name="action" value="editIndicator">
+    <input type="hidden" id="editActiveTab" name="activeTab" value="<%= activeTab %>">
+    <input type="hidden" id="editFieldName" name="fieldName" value="">
+    <input type="hidden" id="editFieldValue" name="fieldValue" value="">
+</form>
+
+<script>
+    // ── Edit Indicator Modal ──────────────────────────────────────────────────
+    function openEditModal(fieldKey, label, currentVal, unit) {
+        document.getElementById('editModalDesc').innerText = label + '  (current: ' + currentVal + (unit ? ' ' + unit : '') + ')';
+        document.getElementById('editModalInput').value = currentVal;
+        document.getElementById('editModalInput').dataset.fieldKey = fieldKey;
+        document.getElementById('editModalOverlay').style.display = 'flex';
+        setTimeout(() => document.getElementById('editModalInput').focus(), 80);
+    }
+    function closeEditModal() {
+        document.getElementById('editModalOverlay').style.display = 'none';
+    }
+    function submitEditIndicator() {
+        const input = document.getElementById('editModalInput');
+        const val = input.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) { alert('Please enter a valid number.'); return; }
+        document.getElementById('editFieldName').value = input.dataset.fieldKey;
+        document.getElementById('editFieldValue').value = val;
+        document.getElementById('editActiveTab').value = document.getElementById('activeTabInput').value;
+        document.getElementById('editIndicatorForm').submit();
+    }
+    document.getElementById('editModalInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitEditIndicator();
+        if (e.key === 'Escape') closeEditModal();
+    });
 </script>
 
 </body>

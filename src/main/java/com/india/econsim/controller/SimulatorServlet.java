@@ -81,6 +81,14 @@ public class SimulatorServlet extends HttpServlet {
         econ.setItServicesSpend(parseAndTrack(req, "itServicesSpend", "IT & Digital Services Spend", "% of GDP", econ.getItServicesSpend(), policyChanges));
         econ.setTourismSpend(parseAndTrack(req, "tourismSpend", "Tourism Spend", "% of GDP", econ.getTourismSpend(), policyChanges));
 
+        // Exogenous shock levers
+        econ.setBrentCrudePrice(parseDouble(req, "brentCrudePrice", econ.getBrentCrudePrice()));
+        econ.setMonsoonIndex(parseDouble(req, "monsoonIndex", econ.getMonsoonIndex()));
+        econ.setM1ShockPct(parseDouble(req, "m1ShockPct", econ.getM1ShockPct()));
+        econ.setBankingNpaPct(parseDouble(req, "bankingNpaPct", econ.getBankingNpaPct()));
+        econ.setTaxBuoyancyCoeff(parseDouble(req, "taxBuoyancyCoeff", econ.getTaxBuoyancyCoeff()));
+        econ.setNeutralRepoRate(parseDouble(req, "neutralRepoRate", econ.getNeutralRepoRate()));
+
         // 4. Advance Simulation Steps (1 Quarter or 4 Quarters for +1 Year)
         int steps = "advanceYear".equals(action) ? 4 : 1;
         for (int i = 0; i < steps; i++) {
@@ -122,6 +130,13 @@ public class SimulatorServlet extends HttpServlet {
     /**
      * Parses a double parameter and logs if the user moved the slider from its prior value.
      */
+    private double parseDouble(HttpServletRequest req, String param, double fallback) {
+        try {
+            String val = req.getParameter(param);
+            return (val != null && !val.isEmpty()) ? Double.parseDouble(val) : fallback;
+        } catch (NumberFormatException e) { return fallback; }
+    }
+
     private double parseAndTrack(HttpServletRequest req, String paramName, String label, String unit,
                                  double oldValue, List<String> changesLog) {
         try {
@@ -230,6 +245,8 @@ public class SimulatorServlet extends HttpServlet {
 
         map.put("hospitalBedsPer1000", s.getHospitalBedsPer1000());
         map.put("publicHealthReadinessIndex", s.getPublicHealthReadinessIndex());
+        map.put("gasolinePrices", s.getGasolinePrices());
+        map.put("moneySupplyM1", s.getMoneySupplyM1());
         return map;
     }
 

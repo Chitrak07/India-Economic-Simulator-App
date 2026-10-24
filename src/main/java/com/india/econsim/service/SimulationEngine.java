@@ -14,9 +14,29 @@ public class SimulationEngine {
 
         double prevGrowth = s.getPrevAnnualGdpGrowth();
 
-        // Oil shock: India imports ~85% of crude needs. Neutral = $85/barrel
-        // Each $10 change in Brent = ~0.4% of GDP import bill shift
-        double oilShock = (s.getBrentCrudePrice() - 85.0) / 10.0; // normalized deviation units
+        // FIX #1: Dynamic neutral rates — policy stance measured relative to r* not hardcoded 5.5%
+        double rStar = s.getNeutralRepoRate();                          // user-settable neutral repo
+        double gStar = s.getNeutralGdpGrowth();                         // user-settable potential growth
+        double infraStar = s.getNeutralInfraSpend();                    // user-settable neutral infra
+
+        // FIX #1: Period-over-period policy deltas (direction of change matters, not level vs 2026)
+        double deltaRepo  = s.getInterestRate() - s.getPrevInterestRate();   // +ve = tightening
+        double deltaInfra = s.getInfraSpend()   - s.getPrevInfraSpend();     // +ve = stimulus
+        // M1 velocity ratio: ongoing money supply growth relative to nominal GDP growth (not one-time shock)
+        double m1Velocity = s.getMoneySupplyM1() / Math.max(1.0, s.getGdpUsdBillion() * 84.4); // M1/NGDP proxy
+
+        // FIX #2: Real interest rate = nominal repo - current CPI inflation
+        double realRate = s.getInterestRate() - s.getInflationRate();
+        // NPA transmission efficiency: high NPA (>7%) chokes credit even when repo is cut
+        double npaDrag = Math.max(0.0, (s.getBankingNpaPct() - 7.0) * 0.08);
+
+        // FIX #3: Exogenous shocks
+        // Oil shock: neutral = $85/bbl
+        double oilShock = (s.getBrentCrudePrice() - 85.0) / 10.0;
+        // Monsoon shock: affects food inflation and agriculture GDP (neutral = 100)
+        double monsoonShock = (s.getMonsoonIndex() - 100.0) / 10.0;    // +ve = bumper harvest
+        // M1 velocity shock (demonetisation-style): contracts informal consumption & services PMI
+        double m1Shock = s.getM1ShockPct() / 100.0;                    // e.g. -0.19 for demonetisation
 
         // =====================================================================
         // 1. LAGGING INDICATORS & CAUSAL REASONS
@@ -64,19 +84,25 @@ public class SimulationEngine {
         // Inflation & Prices
         double oldInf = s.getInflationRate();
         // Fix #3: demand heat baseline corrected to 6.8%
-        double demandHeat = (prevGrowth - 6.8) * 0.20;
-        double monetaryTightening = (s.getInterestRate() - 5.5) * 0.35 + (s.getCashReserveRatio() - 3.0) * 0.25;
-        double indirectTaxPush = (s.getSalesTaxGstRate() - 18.0) * 0.16 + (s.getCustomsDutyRate() - 10.0) * 0.08;
-        double infraSupplyRelief = (s.getInfraSpend() - 3.4) * 0.18 + (s.getMachinerySpend() - 1.5) * 0.10;
-
-        // Oil shock on inflation: higher crude = cost-push CPI/WPI; lower crude = disinflation
-        // WPI is more sensitive (fuel ~15% weight); CPI transport/food ~12% weight
-        double oilInflationPush = oilShock * 0.18;
-        double newInflation = round(clamp(0.65 * oldInf + 0.35 * 5.0 + demandHeat - monetaryTightening + indirectTaxPush - infraSupplyRelief + oilInflationPush, 1.5, 14.0));
+        // FIX #3: Monsoon shock on food inflation (46% CPI weight)
+        double oilInflationPush  = oilShock * 0.18;
+        double monsoonFoodRelief = monsoonShock * 0.30;   // bumper harvest cools food CPI
+        double newInflation = round(clamp(
+                0.65 * oldInf + 0.35 * 4.0
+                + (prevGrowth - gStar) * 0.20
+                - (realRate - 1.5) * 0.30          // FIX #2: real rate gap vs 1.5% neutral real
+                - deltaRepo * 0.15                 // FIX #1: rate-cut direction also cools inflation
+                + (s.getSalesTaxGstRate() - 18.0) * 0.16
+                + (s.getCustomsDutyRate() - 10.0) * 0.08
+                - (s.getInfraSpend() - infraStar) * 0.18
+                - (s.getMachinerySpend() - 1.5) * 0.10
+                + oilInflationPush
+                - monsoonFoodRelief,
+                1.5, 14.0));
         s.setInflationRate(newInflation);
         s.recordChange("inflationRate", oldInf, newInflation,
-                String.format("Lagging CPI YoY shifted from %.2f%% to %.2f%%. Key drivers: Demand-pull (%+.2f%%), GST/Customs pass-through (%+.2f%%), RBI monetary braking (%+.2f%%), Infra supply relief (%+.2f%%), Brent crude oil at $%.0f/bbl (%+.2f%%).",
-                        oldInf, newInflation, demandHeat, indirectTaxPush, -monetaryTightening, -infraSupplyRelief, s.getBrentCrudePrice(), oilInflationPush));
+                String.format("CPI: real rate gap (%+.2f%%), oil $%.0f/bbl (%+.2f%%), monsoon index %.0f (%+.2f%%), demand heat (%+.2f%%).",
+                        -(realRate-1.5)*0.30, s.getBrentCrudePrice(), oilInflationPush, s.getMonsoonIndex(), -monsoonFoodRelief, (prevGrowth-gStar)*0.20));
 
         double qtrInflationFactor = 1.0 + (newInflation / 400.0);
         double oldCpi = s.getCpiPoints();
@@ -104,7 +130,8 @@ public class SimulationEngine {
         s.setCpiRestaurants(round(oldCpiRest * qtrInflationFactor));
         s.recordChange("cpiRestaurants", oldCpiRest, s.getCpiRestaurants(), "Hospitality & dining prices driven by food CPI, GST rate, and tourism demand.");
 
-        // Oil shock on WPI: fuel has ~15% weight in WPI; negative oil = WPI can go negative
+        double oldWpi = s.getWholesalePriceIndex();
+        // Oil shock on WPI: fuel ~15% weight; negative oil = WPI can go negative
         s.setWholesalePriceIndex(round(oldWpi * (1.0 + ((newInflation - oilShock * 0.25) * 0.85 / 400.0))));
         s.recordChange("wholesalePriceIndex", oldWpi, s.getWholesalePriceIndex(),
                 String.format("WPI driven by factory-gate costs. Brent crude at $%.0f/bbl contributes %+.2f%% to WPI momentum.", s.getBrentCrudePrice(), -oilShock * 0.25));
@@ -139,24 +166,29 @@ public class SimulationEngine {
                 + (s.getHealthSpend() - 2.1) * 0.15
                 + (s.getTourismSpend() - 0.5) * 0.22;
 
-        // Fix #4: corporate tax baseline 25.17% (post-2019), PIT 30% (new regime)
-        // Fix #3: GDP baseline 6.8% (India long-run potential)
+        // FIX #1: monetary brake uses dynamic rStar, not hardcoded 5.5
+        // FIX #2: NPA drag chokes credit transmission even when repo is cut
         double taxDrag = (s.getCorporateTaxRate() - 25.17) * 0.07
                 + (s.getPersonalIncomeTaxRate() - 30.0) * 0.05
                 + (s.getSalesTaxGstRate() - 18.0) * 0.08
                 + (s.getWithholdingTaxRate() - 20.0) * 0.03;
 
-        double monetaryBrake = (s.getInterestRate() - 5.5) * 0.26 + (s.getCashReserveRatio() - 3.0) * 0.18;
+        double monetaryBrake = (s.getInterestRate() - rStar) * 0.26
+                + deltaRepo * 0.12                 // FIX #1: rate-cut direction stimulates GDP
+                + (s.getCashReserveRatio() - 3.0) * 0.18
+                + npaDrag;
         double leadingCarryover = (s.getPrevLeadingMomentum() - 1.0) * 3.8;
 
         // Oil shock on GDP: lower crude = household disposable income boost (India 80% oil importer)
         // Each $10 fall in Brent = ~+0.15% real GDP boost via consumption channel
         double oilGdpBoost = -oilShock * 0.15;
-        double newAnnualGrowth = round(clamp(6.80 + leadingCarryover + capexMultiplier - taxDrag - monetaryBrake + oilGdpBoost, -3.0, 12.5));
+        // FIX #1: infra delta stimulus — ramping up infra spend has multiplier beyond level effect
+        double infraDeltaBoost = deltaInfra * 0.20;
+        double newAnnualGrowth = round(clamp(6.80 + leadingCarryover + capexMultiplier - taxDrag - monetaryBrake + oilGdpBoost + infraDeltaBoost, -3.0, 12.5));
         s.setGdpAnnualGrowthRate(newAnnualGrowth);
         s.recordChange("gdpAnnualGrowthRate", oldAnnualGdp, newAnnualGrowth,
-                String.format("Coincident YoY Real GDP Growth: %.2f%%. Breakdown: Leading momentum (%+.2f%%), Capex multiplier (%+.2f%%), Tax drag (%+.2f%%), Monetary brake (%+.2f%%), Oil price at $%.0f/bbl (%+.2f%%).",
-                        newAnnualGrowth, leadingCarryover, capexMultiplier, -taxDrag, -monetaryBrake, s.getBrentCrudePrice(), oilGdpBoost));
+                String.format("Coincident YoY Real GDP Growth: %.2f%%. Breakdown: Leading momentum (%+.2f%%), Capex multiplier (%+.2f%%), Tax drag (%+.2f%%), Monetary brake (%+.2f%%), Oil $%.0f/bbl (%+.2f%%), Infra delta (%+.2f%%).",
+                        newAnnualGrowth, leadingCarryover, capexMultiplier, -taxDrag, -monetaryBrake, s.getBrentCrudePrice(), oilGdpBoost, infraDeltaBoost));
 
         double oldQtrGdp = s.getGdpGrowthRate();
         s.setGdpGrowthRate(round(newAnnualGrowth / 4.0));
@@ -177,9 +209,11 @@ public class SimulationEngine {
         s.recordChange("grossFixedCapitalFormation", oldGfcf, s.getGrossFixedCapitalFormation(),
                 String.format("Driven by real GDP growth plus public Infrastructure (%.1f%%) and Machinery/PLI (%.1f%%) capital formation.", s.getInfraSpend(), s.getMachinerySpend()));
 
+        // FIX #3: Monsoon shock on agriculture GDP
         double oldAgri = s.getGdpFromAgriculture();
-        s.setGdpFromAgriculture(round(oldAgri * 1.009));
-        s.recordChange("gdpFromAgriculture", oldAgri, s.getGdpFromAgriculture(), "Steady rural output and irrigation infrastructure support.");
+        s.setGdpFromAgriculture(round(oldAgri * (1.0 + 0.009 + monsoonShock * 0.025)));
+        s.recordChange("gdpFromAgriculture", oldAgri, s.getGdpFromAgriculture(),
+                String.format("Agriculture GDP: monsoon index %.0f (%+.2f%% seasonal impact).", s.getMonsoonIndex(), monsoonShock * 0.025));
 
         double oldMfgGdp = s.getGdpFromManufacturing();
         s.setGdpFromManufacturing(round(oldMfgGdp * (qtrRealFactor + (s.getMachinerySpend() - 1.5) * 0.005)));
@@ -229,13 +263,15 @@ public class SimulationEngine {
         s.setBankLendingRate(round(s.getInterestRate() + 3.46 + (s.getCashReserveRatio() - 3.0) * 0.12));
         s.recordChange("bankLendingRate", oldLend, s.getBankLendingRate(), "Commercial bank MCLR lending rate transmitted from RBI Repo Rate and CRR.");
 
+        // FIX #2: credit growth uses real rate gap vs neutral; NPA drag reduces transmission
         double oldLoan = s.getBankLoanGrowthYoY();
-        s.setBankLoanGrowthYoY(round(clamp(12.8 + (newAnnualGrowth - 7.8) * 0.8 - (s.getInterestRate() - 5.5) * 1.1, 4.0, 22.0)));
+        s.setBankLoanGrowthYoY(round(clamp(12.8 + (newAnnualGrowth - gStar) * 0.8 - (realRate - 1.5) * 1.1 - npaDrag * 2.0, 4.0, 22.0)));
         s.recordChange("bankLoanGrowthYoY", oldLoan, s.getBankLoanGrowthYoY(),
-                "Credit growth stimulated by GDP expansion but dampened when RBI Repo Rate rises.");
+                String.format("Credit growth: real rate gap (%+.2f%%), NPA drag -%.2f%%. High NPAs choke transmission even when repo is cut.", -(realRate-1.5)*1.1, npaDrag*2.0));
 
+        // FIX #3: M1 shock (demonetisation-style) applied to money supply
         double oldDep = s.getDepositGrowthYoY();
-        s.setDepositGrowthYoY(round(clamp(11.2 + (s.getInterestRate() - 5.5) * 0.65 + (newAnnualGrowth - 7.8) * 0.4, 5.0, 18.0)));
+        s.setDepositGrowthYoY(round(clamp(11.2 + (s.getInterestRate() - rStar) * 0.65 + (newAnnualGrowth - gStar) * 0.4, 5.0, 18.0)));
         s.recordChange("depositGrowthYoY", oldDep, s.getDepositGrowthYoY(), "Higher interest rates incentivize household term deposits in banks.");
 
         // Trade & External
@@ -308,20 +344,22 @@ public class SimulationEngine {
         s.recordChange("externalDebtUsdBillion", oldExtDebt, s.getExternalDebtUsdBillion(), "External borrowing rises when Current Account Deficit widens.");
 
         double oldInr = s.getCurrencyUsdInr();
-        // Fix #6: INR/USD includes capital account + oil shock (higher crude = larger CAD = INR depreciation)
-        double fxShift = (newInflation - 5.5) * 0.20
-                - (s.getInterestRate() - 5.5) * 0.28
+        // FIX #1: INR uses rStar gap + oil shock + CAD pressure
+        double fxShift = (newInflation - 4.0) * 0.20
+                - (s.getInterestRate() - rStar) * 0.28
                 - (s.getForeignDirectInvestment() - 6.8) * 0.15
                 - (s.getCurrentAccountToGdp() + 1.5) * 0.12
                 + oilShock * 0.20;
-        s.setCurrencyUsdInr(round(clamp(oldInr + fxShift, 72.0, 102.0)));
+        s.setCurrencyUsdInr(round(clamp(oldInr + fxShift, 60.0, 110.0)));
         s.recordChange("currencyUsdInr", oldInr, s.getCurrencyUsdInr(),
-                String.format("INR: inflation differential (%+.2f), RBI rate (%+.2f), FDI (%+.2f), CAD (%+.2f), Brent crude $%.0f/bbl (%+.2f).",
-                        (newInflation-5.5)*0.20, -(s.getInterestRate()-5.5)*0.28, -(s.getForeignDirectInvestment()-6.8)*0.15, -(s.getCurrentAccountToGdp()+1.5)*0.12, s.getBrentCrudePrice(), oilShock*0.20));
+                String.format("INR: inflation gap (%+.2f), rate vs r* (%+.2f), FDI (%+.2f), CAD (%+.2f), Brent $%.0f/bbl (%+.2f).",
+                        (newInflation-4.0)*0.20, -(s.getInterestRate()-rStar)*0.28,
+                        -(s.getForeignDirectInvestment()-6.8)*0.15, -(s.getCurrentAccountToGdp()+1.5)*0.12,
+                        s.getBrentCrudePrice(), oilShock*0.20));
 
         // Business, Consumer & Housing Coincident
         double oldIip = s.getIndustrialProductionYoY();
-        s.setIndustrialProductionYoY(round(clamp(4.40 + (s.getMachinerySpend() - 1.5) * 1.6 + (s.getInfraSpend() - 3.4) * 1.2 - (s.getInterestRate() - 5.5) * 0.5, -2.0, 14.0)));
+        s.setIndustrialProductionYoY(round(clamp(4.40 + (s.getMachinerySpend() - 1.5) * 1.6 + (s.getInfraSpend() - 3.4) * 1.2 - (s.getInterestRate() - rStar) * 0.5 - deltaRepo * 0.18, -2.0, 14.0)));
         s.recordChange("industrialProductionYoY", oldIip, s.getIndustrialProductionYoY(), "IIP growth driven by Machinery & Infrastructure spending, moderated by borrowing costs.");
 
         double oldMfgProd = s.getManufacturingProductionYoY();
@@ -337,10 +375,10 @@ public class SimulationEngine {
         s.recordChange("infrastructureOutputYoY", oldInfraOut, s.getInfrastructureOutputYoY(), "Core 8-industries output (cement, steel, power) directly responds to Infrastructure budget.");
 
         double oldRetail = s.getRetailSalesGrowthYoY();
-        // Fix #4: PIT baseline corrected to 30%
-        s.setRetailSalesGrowthYoY(round(clamp(newAnnualGrowth - 0.8 - (s.getPersonalIncomeTaxRate() - 30.0) * 0.12 - (s.getSalesTaxGstRate() - 18.0) * 0.15, 0.5, 14.0)));
+        // Fix #4: PIT baseline corrected to 30%; FIX #3: M1 velocity drives informal consumption
+        s.setRetailSalesGrowthYoY(round(clamp(newAnnualGrowth - 0.8 - (s.getPersonalIncomeTaxRate() - 30.0) * 0.12 - (s.getSalesTaxGstRate() - 18.0) * 0.15 + m1Shock * 15.0 + (m1Velocity - 0.22) * 8.0, 0.5, 14.0)));
         s.recordChange("retailSalesGrowthYoY", oldRetail, s.getRetailSalesGrowthYoY(),
-                "Coincident household consumption boosted by GDP growth and lower Personal Income Tax or GST rates.");
+                String.format("Coincident household consumption: GDP growth, PIT/GST rates, M1 shock %.1f%%, M1 velocity %.3f (informal cash economy channel).", s.getM1ShockPct(), m1Velocity));
 
         double oldGas = s.getGasolinePrices();
         // Oil shock on gasoline: $10 Brent change = ~$0.07/liter at pump
@@ -362,13 +400,16 @@ public class SimulationEngine {
         s.recordChange("governmentSpendingToGdp", oldGovtSpend, totalGovtSpendPct,
                 String.format("Sum of all 7 Sectoral Budgets (%.2f%% of GDP) plus debt-service interest and defense outlays (%.2f%%).", totalSectorSpendPct, debtServiceAndFixedPct));
 
-        // Fix #3: tax revenue growth sensitivity baseline corrected to 6.8%
-        double taxRevPctGdp = (s.getCorporateTaxRate() * 0.105)
+        // FIX #4: Tax buoyancy coefficient — formalization & digital spend raises effective tax yield
+        double taxBuoyancy = s.getTaxBuoyancyCoeff();
+        double taxRevPctGdp = taxBuoyancy * (
+                (s.getCorporateTaxRate() * 0.105)
                 + (s.getPersonalIncomeTaxRate() * 0.085)
                 + (s.getSalesTaxGstRate() * 0.31)
                 + (s.getCustomsDutyRate() * 0.065)
-                + (s.getWithholdingTaxRate() * 0.04)
-                + (newAnnualGrowth - 6.8) * 0.16;
+                + (s.getWithholdingTaxRate() * 0.04))
+                + (newAnnualGrowth - gStar) * 0.16
+                + (s.getTechSpend() - 0.85) * 0.12;  // digitization raises compliance
 
         double oldBudget = s.getGovernmentBudget();
         double fiscalBalancePct = round(taxRevPctGdp - totalGovtSpendPct);
@@ -402,26 +443,30 @@ public class SimulationEngine {
         // =====================================================================
         // 3. LEADING INDICATORS & CAUSAL REASONS
         // =====================================================================
+        // FIX #1: yield curve uses rStar gap; FIX #3: M1 shock contracts PMI
         double oldYield = s.getYieldCurveSpread();
-        double yieldSpread = round(clamp(0.45 - (s.getInterestRate() - 5.5) * 0.32 + (capexMultiplier * 0.18) - (fiscalBalancePct + 4.4) * 0.07, -1.5, 2.5));
+        double yieldSpread = round(clamp(0.45 - (s.getInterestRate() - rStar) * 0.32 + (capexMultiplier * 0.18) - (fiscalBalancePct + 4.4) * 0.07, -1.5, 2.5));
         s.setYieldCurveSpread(yieldSpread);
         s.recordChange("yieldCurveSpread", oldYield, yieldSpread,
-                "Leading Indicator (10Y-2Y G-Sec): Steepens with growth/capex expectations; flattens or inverts (<0%) when RBI hikes short-term Repo rates aggressively.");
+                "10Y-2Y G-Sec: steepens with growth expectations; inverts when repo exceeds r* aggressively.");
 
         double oldMfgPmi = s.getManufacturingPMI();
-        // Fix #4: PMI corporate tax baseline corrected to 25.17%
-        double mfgPmi = round(clamp(54.9 + (s.getMachinerySpend() - 1.5) * 2.2 + (s.getInfraSpend() - 3.4) * 1.6
-                - (s.getCorporateTaxRate() - 25.17) * 0.22 - (s.getInterestRate() - 5.5) * 0.75, 42.0, 66.0));
+        double mfgPmi = round(clamp(54.9 + (s.getMachinerySpend() - 1.5) * 2.2 + (s.getInfraSpend() - infraStar) * 1.6
+                - (s.getCorporateTaxRate() - 25.17) * 0.22 - (s.getInterestRate() - rStar) * 0.75
+                + m1Shock * 30.0, 42.0, 66.0));  // M1 shock crushes factory orders
         s.setManufacturingPMI(mfgPmi);
         s.recordChange("manufacturingPMI", oldMfgPmi, mfgPmi,
-                "Leading Indicator: Driven by new factory orders from Machinery/Infra capex, reduced by Corporate Tax and Repo rate hikes.");
+                String.format("Mfg PMI: Machinery/Infra capex, rate vs r* (%+.2f), M1 shock %.1f%%.", -(s.getInterestRate()-rStar)*0.75, s.getM1ShockPct()));
 
         double oldSvcPmi = s.getServicesPMI();
         double svcPmi = round(clamp(56.2 + (s.getItServicesSpend() - 1.1) * 2.4 + (s.getTourismSpend() - 0.5) * 1.8
-                + (s.getTechSpend() - 0.85) * 1.6 - (s.getSalesTaxGstRate() - 18.0) * 0.28 - (s.getInterestRate() - 5.5) * 0.55, 42.0, 68.0));
+                + (s.getTechSpend() - 0.85) * 1.6 - (s.getSalesTaxGstRate() - 18.0) * 0.28
+                - (s.getInterestRate() - rStar) * 0.55
+                + m1Shock * 25.0                  // one-time M1 shock hits informal services hard
+                + (m1Velocity - 0.22) * 12.0, 42.0, 68.0));  // FIX #3: ongoing M1 velocity channel
         s.setServicesPMI(svcPmi);
         s.recordChange("servicesPMI", oldSvcPmi, svcPmi,
-                "Leading Indicator: Boosted by IT Services, Tourism, and Tech R&D allocations; dampened by higher GST rates.");
+                String.format("Services PMI: IT/Tourism/Tech spend, rate vs r* (%+.2f), M1 shock %.1f%%, M1 velocity %.3f.", -(s.getInterestRate()-rStar)*0.55, s.getM1ShockPct(), m1Velocity));
 
         double oldCompPmi = s.getCompositePMI();
         double compPmi = round(0.45 * mfgPmi + 0.55 * svcPmi);
@@ -444,7 +489,7 @@ public class SimulationEngine {
                 "Leading Indicator: Strengthened by low Inflation, low Unemployment, Personal Income Tax relief, and social Health/Education spending.");
 
         double oldDur = s.getConsumerDurablesIndex();
-        s.setConsumerDurablesIndex(round(clamp(oldDur * (1.0 + (consConf - 87.0) * 0.0018 - (s.getInterestRate() - 5.5) * 0.004), 75.0, 210.0)));
+        s.setConsumerDurablesIndex(round(clamp(oldDur * (1.0 + (consConf - 87.0) * 0.0018 - (s.getInterestRate() - rStar) * 0.004), 75.0, 210.0)));
         s.recordChange("consumerDurablesIndex", oldDur, s.getConsumerDurablesIndex(),
                 "Leading Indicator: Household purchases of appliances and electronics depend on Consumer Confidence and EMI interest rates.");
 
@@ -458,24 +503,28 @@ public class SimulationEngine {
         s.recordChange("passengerVehicleSales", oldPv, s.getPassengerVehicleSales(), "Auto sales respond to Consumer Confidence, auto loan rates, and GST rates.");
 
         double oldHousIdx = s.getHousingIndex();
-        s.setHousingIndex(round(clamp(oldHousIdx * (1.0 + 0.01 + (consConf - 87.9) * 0.0005 - (s.getInterestRate() - 5.5) * 0.004), 90.0, 180.0)));
+        s.setHousingIndex(round(clamp(oldHousIdx * (1.0 + 0.01 + (consConf - 87.9) * 0.0005 - (s.getInterestRate() - rStar) * 0.004), 90.0, 180.0)));
         s.recordChange("housingIndex", oldHousIdx, s.getHousingIndex(), "Leading NHB Residex index sensitive to mortgage interest rates and urban income confidence.");
 
         double oldProp = s.getResidentialPropertyPricesYoY();
-        s.setResidentialPropertyPricesYoY(round(clamp(4.21 + (s.getInfraSpend() - 3.4) * 0.6 - (s.getInterestRate() - 5.5) * 0.55, -2.0, 12.0)));
+        s.setResidentialPropertyPricesYoY(round(clamp(4.21 + (s.getInfraSpend() - infraStar) * 0.6 - (s.getInterestRate() - rStar) * 0.55, -2.0, 12.0)));
         s.recordChange("residentialPropertyPricesYoY", oldProp, s.getResidentialPropertyPricesYoY(), "Lagging property price appreciation driven by urban transit infrastructure and home loan rates.");
 
-        double mGrowth = 1.0 + ((newAnnualGrowth + newInflation - (s.getCashReserveRatio() - 3.0) * 0.6) / 400.0);
+        // FIX #3: M1 shock applied to money supply (demonetisation = m1ShockPct = -19)
+        double mGrowth = (1.0 + m1Shock) * (1.0 + ((newAnnualGrowth + newInflation - (s.getCashReserveRatio() - 3.0) * 0.6) / 400.0));
         double oldM1 = s.getMoneySupplyM1();
         s.setMoneySupplyM1(round(oldM1 * mGrowth));
-        s.recordChange("moneySupplyM1", oldM1, s.getMoneySupplyM1(), "Leading liquidity metric expanding with nominal output and contracting when RBI hikes CRR.");
+        s.recordChange("moneySupplyM1", oldM1, s.getMoneySupplyM1(),
+                String.format("M1 liquidity: nominal growth channel + M1 shock of %.1f%% (0=normal, -19=demonetisation).", s.getM1ShockPct()));
         s.setMoneySupplyM2(round(s.getMoneySupplyM2() * mGrowth));
         s.setMoneySupplyM3(round(s.getMoneySupplyM3() * mGrowth));
         s.setCentralBankBalanceSheet(round(s.getCentralBankBalanceSheet() * 1.012));
+        // Reset M1 shock after applying (one-time shock)
+        s.setM1ShockPct(0.0);
 
         double oldSensex = s.getStockMarketSensex();
         // Fix #8: Sensex base return 0.008/qtr (3.2% annualized); Fix #4: tax baseline 25.17%
-        double sensexReturn = 0.008 + (compPmi - 55.5) * 0.004 - (s.getCorporateTaxRate() - 25.17) * 0.003 - (s.getInterestRate() - 5.5) * 0.007 + (yieldSpread * 0.008);
+        double sensexReturn = 0.008 + (compPmi - 55.5) * 0.004 - (s.getCorporateTaxRate() - 25.17) * 0.003 - (s.getInterestRate() - rStar) * 0.007 + (yieldSpread * 0.008);
         s.setStockMarketSensex(round(clamp(oldSensex * (1.0 + sensexReturn), 35000.0, 160000.0)));
         s.recordChange("stockMarketSensex", oldSensex, s.getStockMarketSensex(),
                 "Leading Equity Benchmark (BSE Sensex): Driven by forward earnings (Composite PMI), Corporate Tax cuts, lower RBI discount rates, and positive Yield Curve spread.");
@@ -491,6 +540,9 @@ public class SimulationEngine {
         ));
 
         double leadingMomentum = ((compPmi / 56.0) * 0.50) + ((bizConf / 111.1) * 0.25) + ((consConf / 87.9) * 0.25);
+        // FIX #1: save period-over-period policy values for next quarter's delta calculations
+        s.setPrevInterestRate(s.getInterestRate());
+        s.setPrevInfraSpend(s.getInfraSpend());
         s.setPrevLeadingMomentum(leadingMomentum);
         s.setPrevAnnualGdpGrowth(newAnnualGrowth);
     }

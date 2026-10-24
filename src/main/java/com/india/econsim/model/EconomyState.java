@@ -136,9 +136,26 @@ public class EconomyState implements Serializable {
     private double hospitalBedsPer1000 = 0.52;
     private double publicHealthReadinessIndex = 76.50;
 
-    // --- 3. CAUSAL ATTRIBUTION & DELTA TRACKING ---
+    // --- 3. DYNAMIC NEUTRAL RATES (Fix #1) ---
+    private double neutralRepoRate = 6.50;            // r* = inflation target (4%) + real neutral (2.5%)
+    private double neutralGdpGrowth = 6.80;           // India long-run potential growth
+    private double neutralInfraSpend = 3.40;          // baseline infra % GDP
+
+    // --- 4. EXOGENOUS SHOCK LEVERS (Fix #3) ---
+    private double monsoonIndex = 100.0;              // 100 = normal; <95 = drought; >105 = bumper
+    private double m1ShockPct = 0.0;                  // % one-time M1 shock (e.g. -19 for demonetisation)
+
+    // --- 5. BANKING TRANSMISSION (Fix #2) ---
+    private double bankingNpaPct = 7.5;               // Gross NPA % of advances (transmission efficiency)
+
+    // --- 6. TAX BUOYANCY (Fix #4) ---
+    private double taxBuoyancyCoeff = 1.0;            // >1 = buoyant (formalization); <1 = leakage
+
+    // --- 7. CAUSAL ATTRIBUTION & DELTA TRACKING ---
     private double prevLeadingMomentum = 1.0;
     private double prevAnnualGdpGrowth = 6.80;        // corrected baseline
+    private double prevInterestRate = 6.50;           // tracks period-over-period repo delta
+    private double prevInfraSpend = 3.40;             // tracks period-over-period infra delta
     private String lastTurnSummary = "Baseline initialized to Trading Economics India benchmarks. Adjust any policy slider on the left to inspect Pros & Cons, or advance a quarter to see causal explanations.";
     private Map<String, Double> deltas = new HashMap<>();
     private Map<String, String> reasons = new LinkedHashMap<>();
@@ -382,6 +399,24 @@ public class EconomyState implements Serializable {
     public void setPrevLeadingMomentum(double prevLeadingMomentum) { this.prevLeadingMomentum = prevLeadingMomentum; }
     public double getPrevAnnualGdpGrowth() { return prevAnnualGdpGrowth; }
     public void setPrevAnnualGdpGrowth(double prevAnnualGdpGrowth) { this.prevAnnualGdpGrowth = prevAnnualGdpGrowth; }
+    public double getPrevInterestRate() { return prevInterestRate; }
+    public void setPrevInterestRate(double prevInterestRate) { this.prevInterestRate = prevInterestRate; }
+    public double getPrevInfraSpend() { return prevInfraSpend; }
+    public void setPrevInfraSpend(double prevInfraSpend) { this.prevInfraSpend = prevInfraSpend; }
+    public double getNeutralRepoRate() { return neutralRepoRate; }
+    public void setNeutralRepoRate(double neutralRepoRate) { this.neutralRepoRate = neutralRepoRate; }
+    public double getNeutralGdpGrowth() { return neutralGdpGrowth; }
+    public void setNeutralGdpGrowth(double neutralGdpGrowth) { this.neutralGdpGrowth = neutralGdpGrowth; }
+    public double getNeutralInfraSpend() { return neutralInfraSpend; }
+    public void setNeutralInfraSpend(double neutralInfraSpend) { this.neutralInfraSpend = neutralInfraSpend; }
+    public double getMonsoonIndex() { return monsoonIndex; }
+    public void setMonsoonIndex(double monsoonIndex) { this.monsoonIndex = monsoonIndex; }
+    public double getM1ShockPct() { return m1ShockPct; }
+    public void setM1ShockPct(double m1ShockPct) { this.m1ShockPct = m1ShockPct; }
+    public double getBankingNpaPct() { return bankingNpaPct; }
+    public void setBankingNpaPct(double bankingNpaPct) { this.bankingNpaPct = bankingNpaPct; }
+    public double getTaxBuoyancyCoeff() { return taxBuoyancyCoeff; }
+    public void setTaxBuoyancyCoeff(double taxBuoyancyCoeff) { this.taxBuoyancyCoeff = taxBuoyancyCoeff; }
     public String getLastTurnSummary() { return lastTurnSummary; }
     public void setLastTurnSummary(String lastTurnSummary) { this.lastTurnSummary = lastTurnSummary; }
 
