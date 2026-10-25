@@ -528,6 +528,13 @@
                 <button type="submit" name="action" value="checkReality"   class="b-cwr">🔬 Reality Check</button>
                 <button type="submit" name="action" value="reset"          class="b-rst">↺ Reset</button>
             </div>
+            <div class="action-bar" style="margin-top:6px;">
+                <button type="submit" name="action" value="dynamicRealityCheck"
+                        style="background:#b45309;font-size:0.76rem;width:100%;"
+                        title="Compare your simulation against World Bank actuals for the current year">
+                    🔬 Dynamic Reality Check
+                </button>
+            </div>
         </div>
 
         <!-- TAXES & TARIFFS -->
@@ -584,6 +591,58 @@
                 <div class="slider-row"><label><span>Banking NPA %</span><strong id="lbl_npa"><%= econ.getBankingNpaPct() %>%</strong></label><input type="range" name="bankingNpaPct" min="2" max="20" step="0.5" data-baseline="<%= econ.getBankingNpaPct() %>" value="<%= econ.getBankingNpaPct() %>" oninput="syncLabel('lbl_npa', this.value, '%')"></div>
                 <div class="slider-row"><label><span>Tax Buoyancy Coeff</span><strong id="lbl_tbc"><%= econ.getTaxBuoyancyCoeff() %></strong></label><input type="range" name="taxBuoyancyCoeff" min="0.6" max="1.5" step="0.05" data-baseline="<%= econ.getTaxBuoyancyCoeff() %>" value="<%= econ.getTaxBuoyancyCoeff() %>" oninput="syncLabel('lbl_tbc', this.value, '')"></div>
                 <div class="slider-row"><label><span>Neutral Repo r* (%)</span><strong id="lbl_rstar"><%= econ.getNeutralRepoRate() %>%</strong></label><input type="range" name="neutralRepoRate" min="4.0" max="9.0" step="0.25" data-baseline="<%= econ.getNeutralRepoRate() %>" value="<%= econ.getNeutralRepoRate() %>" oninput="syncLabel('lbl_rstar', this.value, '%')"></div>
+            </div>
+        </div>
+
+        <!-- LOAD HISTORICAL YEAR — collapsed by default -->
+        <div class="lever-section">
+            <button type="button" class="lever-section-header collapsed" onclick="toggleSection(this)">
+                📅 Load Historical Year <i class="chevron">▾</i>
+            </button>
+            <div class="lever-section-body hidden">
+                <p style="font-size:0.75rem;color:var(--muted);margin:0 0 10px;line-height:1.5;">
+                    Seeds <strong style="color:var(--text);">all indicators</strong> from real World Bank data for the chosen year.
+                    Then adjust policy levers, click <strong>▶▶ +1 Year</strong> to simulate forward,
+                    and finally click <strong>🔬 Dynamic Reality Check</strong> to compare against WB actuals.
+                </p>
+                <div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:0.73rem;color:var(--muted);line-height:1.5;">
+                    <strong style="color:#fbbf24;">Workflow:</strong><br>
+                    1. Click <strong>🌐 Fetch WB Data</strong> once (Dynamic WB Backtest section)<br>
+                    2. Pick a year below and click <strong>📥 Load Year</strong><br>
+                    3. Adjust policy levers → <strong>▶▶ +1 Year</strong><br>
+                    4. Click <strong>🔬 Dynamic Reality Check</strong> above
+                </div>
+                <div style="margin-bottom:8px;">
+                    <label style="font-size:0.76rem;color:var(--muted);display:block;margin-bottom:4px;">Historical Year to load:</label>
+                    <select name="histYear" id="histYearSelect" style="width:100%;background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:0.83rem;" onchange="updateHistLabel(this.value)">
+                        <option value="2006">2006</option>
+                        <option value="2007">2007</option>
+                        <option value="2008">2008 (GFC)</option>
+                        <option value="2009">2009</option>
+                        <option value="2010">2010</option>
+                        <option value="2011">2011</option>
+                        <option value="2012">2012</option>
+                        <option value="2013">2013 (Taper Tantrum)</option>
+                        <option value="2014" selected>2014</option>
+                        <option value="2015">2015 (Demonetisation yr)</option>
+                        <option value="2016">2016</option>
+                        <option value="2017">2017 (GST launch)</option>
+                        <option value="2018">2018 (NBFC crisis)</option>
+                        <option value="2019">2019 (COVID shadow)</option>
+                        <option value="2020">2020 (COVID)</option>
+                        <option value="2021">2021 (Recovery)</option>
+                        <option value="2022">2022 (Inflation surge)</option>
+                        <option value="2023">2023</option>
+                    </select>
+                </div>
+                <div id="histYearLabel" style="font-size:0.72rem;color:#fbbf24;margin-bottom:8px;text-align:center;">
+                    Loads WB 2014 actuals → simulate → compare vs WB 2015
+                </div>
+                <div class="action-bar">
+                    <button type="submit" name="action" value="loadHistoricalYear" style="background:#b45309;font-size:0.76rem;width:100%;" title="Seed all indicators from World Bank data for the chosen year">
+                        📥 Load Year into Simulator
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -729,6 +788,12 @@ const indicatorReasons = {
         const next = parseInt(year) + 1;
         const el = document.getElementById('dynYearLabel');
         if (el) el.innerText = 'Seed from WB ' + year + ' actuals → Simulate → Compare vs WB ' + next + ' actuals';
+    }
+
+    function updateHistLabel(year) {
+        const next = parseInt(year) + 1;
+        const el = document.getElementById('histYearLabel');
+        if (el) el.innerText = 'Loads WB ' + year + ' actuals → simulate → compare vs WB ' + next;
     }
 
     function syncLabel(id, val, unit) {
@@ -1232,6 +1297,122 @@ const indicatorReasons = {
         <em>Note: WB ILO unemployment estimates are typically 2–3pp higher than CMIE/PLFS figures — this creates structural divergence on that indicator.</em>
     </div>
 
+  </div>
+</div>
+<% } %>
+
+<!-- 7. LOAD YEAR MESSAGE TOAST -->
+<%
+    String loadYearMsg = (String) request.getAttribute("loadYearMsg");
+%>
+<% if (loadYearMsg != null) { %>
+<div id="loadYearToast" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid #b45309;border-radius:8px;padding:12px 22px;z-index:10003;font-size:0.87rem;box-shadow:0 8px 24px rgba(0,0,0,0.7);max-width:640px;text-align:center;">
+    <%= loadYearMsg %>
+    <span onclick="document.getElementById('loadYearToast').style.display='none'" style="margin-left:14px;cursor:pointer;color:var(--muted);font-size:1rem;">&#x2715;</span>
+</div>
+<% } %>
+
+<!-- 8. DYNAMIC REALITY CHECK RESULT MODAL -->
+<%
+    RealityCheckService.RealityCheckResult dynRealityResult =
+        (RealityCheckService.RealityCheckResult) request.getAttribute("dynRealityResult");
+    Integer dynRealityYear = (Integer) request.getAttribute("dynRealityYear");
+%>
+<% if (dynRealityResult != null) {
+    double drAcc = dynRealityResult.meanAccuracy;
+    String drAccColor = drAcc >= 85 ? "#22c55e" : drAcc >= 70 ? "#fbbf24" : "#ef4444";
+%>
+<div id="dynRealityOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:10002;align-items:center;justify-content:center;">
+  <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #b45309;border-radius:12px;width:860px;max-width:96%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.95);">
+
+    <!-- Header -->
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+      <div>
+        <h3 style="margin:0 0 4px;color:#b45309;font-size:1.1rem;">
+            🔬 Dynamic Reality Check — Your Simulation vs WB Actuals <%= dynRealityYear != null ? "(" + dynRealityYear + ")" : "" %>
+        </h3>
+        <div style="font-size:0.78rem;color:var(--muted);">
+            Compares your <strong style="color:var(--text);">simulated</strong> economy against real
+            <strong style="color:var(--text);">World Bank</strong> data for the same year
+        </div>
+      </div>
+      <button onclick="document.getElementById('dynRealityOverlay').style.display='none'" style="background:#334155;color:#fff;border:none;border-radius:5px;padding:6px 14px;cursor:pointer;font-weight:700;flex-shrink:0;margin-left:16px;">✕ Close</button>
+    </div>
+
+    <!-- Summary banner -->
+    <div style="background:rgba(180,83,9,0.1);border-left:4px solid #b45309;padding:10px 14px;border-radius:5px;margin-bottom:16px;font-size:0.82rem;line-height:1.5;">
+        <%= dynRealityResult.summary %>
+    </div>
+
+    <!-- Accuracy bar -->
+    <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin-bottom:5px;">
+            <span>Mean Model Accuracy (your simulation vs World Bank ground truth)</span>
+            <span style="font-weight:800;font-size:0.95rem;color:<%= drAccColor %>;"><%= String.format("%.1f", drAcc) %>%</span>
+        </div>
+        <div style="background:#1e293b;border-radius:99px;height:10px;overflow:hidden;">
+            <div style="height:100%;width:<%= Math.max(0, Math.min(100, drAcc)) %>%;background:<%= drAccColor %>;border-radius:99px;"></div>
+        </div>
+        <div style="display:flex;gap:16px;margin-top:6px;font-size:0.74rem;color:var(--muted);">
+            <% long drPass = dynRealityResult.rows.stream().filter(r -> "PASS".equals(r.verdict)).count();
+               long drWarn = dynRealityResult.rows.stream().filter(r -> "WARN".equals(r.verdict)).count();
+               long drFail = dynRealityResult.rows.stream().filter(r -> "FAIL".equals(r.verdict)).count(); %>
+            <span>✅ PASS (≤5% err): <strong style="color:#22c55e;"><%= drPass %></strong></span>
+            <span>⚠️ WARN (≤15%): <strong style="color:#fbbf24;"><%= drWarn %></strong></span>
+            <span>❌ FAIL (&gt;15%): <strong style="color:#ef4444;"><%= drFail %></strong></span>
+        </div>
+    </div>
+
+    <!-- Comparison table -->
+    <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
+        <thead>
+            <tr style="background:#1e293b;">
+                <th style="padding:9px 10px;text-align:left;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Indicator</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">WB Actual</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Your Simulation</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Error %</th>
+                <th style="padding:9px 10px;text-align:center;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Verdict</th>
+            </tr>
+        </thead>
+        <tbody>
+        <% for (RealityCheckService.RealityRow row : dynRealityResult.rows) {
+            String drbg = "PASS".equals(row.verdict) ? "rgba(34,197,94,0.06)"  :
+                          "WARN".equals(row.verdict) ? "rgba(251,191,36,0.06)" : "rgba(239,68,68,0.06)";
+            String drvc = "PASS".equals(row.verdict) ? "#22c55e" :
+                          "WARN".equals(row.verdict) ? "#fbbf24" : "#ef4444";
+            String drvi = "PASS".equals(row.verdict) ? "&#10003; PASS" :
+                          "WARN".equals(row.verdict) ? "&#9888; WARN" : "&#10007; FAIL";
+        %>
+            <tr style="background:<%= drbg %>;border-bottom:1px solid #1e293b;">
+                <td style="padding:9px 10px;color:#f8fafc;font-weight:600;"><%= row.indicator %></td>
+                <td style="padding:9px 10px;text-align:right;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;">
+                    <%= String.format("%.2f", row.actual) %>
+                    <span style="color:#475569;font-size:0.74rem;"> <%= row.unit %></span>
+                </td>
+                <td style="padding:9px 10px;text-align:right;font-weight:700;color:#38bdf8;font-variant-numeric:tabular-nums;">
+                    <%= String.format("%.2f", row.simulated) %>
+                    <span style="color:#475569;font-size:0.74rem;"> <%= row.unit %></span>
+                </td>
+                <td style="padding:9px 10px;text-align:right;color:<%= drvc %>;font-weight:700;">
+                    <%= String.format("%.1f", row.errorPct) %>%%
+                </td>
+                <td style="padding:9px 10px;text-align:center;font-weight:700;color:<%= drvc %>;font-size:0.8rem;">
+                    <%= drvi %>
+                </td>
+            </tr>
+        <% } %>
+        </tbody>
+    </table>
+
+    <div style="margin-top:14px;font-size:0.72rem;color:#475569;line-height:1.6;">
+        PASS = error &le;5%% &bull; WARN = error &le;15%% &bull; FAIL &gt;15%% &bull;
+        Source: World Bank Open Data API v2 &bull;
+        ILO unemployment estimates may be 2–3pp higher than CMIE/PLFS, creating structural divergence on that indicator.
+    </div>
+
+    <div style="text-align:right;margin-top:14px;">
+        <button onclick="document.getElementById('dynRealityOverlay').style.display='none'" style="background:#475569;color:#fff;border:none;border-radius:5px;padding:7px 18px;font-weight:700;cursor:pointer;">Close</button>
+    </div>
   </div>
 </div>
 <% } %>

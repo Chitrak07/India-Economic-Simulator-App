@@ -15,7 +15,7 @@ public class RealityCheckService {
         public final String unit;
         public final String verdict;      // PASS / WARN / FAIL
 
-        RealityRow(String indicator, double actual, double simulated, String unit) {
+        public RealityRow(String indicator, double actual, double simulated, String unit) {
             this.indicator = indicator;
             this.actual    = actual;
             this.simulated = simulated;

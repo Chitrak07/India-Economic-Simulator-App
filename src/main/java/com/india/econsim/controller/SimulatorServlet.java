@@ -1,5 +1,6 @@
 package com.india.econsim.controller;
 
+import com.google.gson.JsonObject;
 import com.india.econsim.model.EconomyState;
 import com.india.econsim.service.BacktestResult;
 import com.india.econsim.service.DynamicBacktestService;
@@ -318,6 +319,77 @@ public class SimulatorServlet extends HttpServlet {
 
         session.setAttribute("econ", econ);
         req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
+    }
+
+    /**
+     * Compares the current {@link EconomyState} (the user's simulated result) against
+     * real World Bank data for {@code compareYear}.
+     *
+     * <p>Called from the "dynamicRealityCheck" action after the user has:
+     * <ol>
+     *   <li>Loaded a historical WB baseline via "loadHistoricalYear" (year T)</li>
+     *   <li>Adjusted policy levers and clicked +1 Year to simulate year T+1</li>
+     * </ol>
+     * The method reads WB actuals for {@code compareYear} (= T+1) and returns one
+     * {@link RealityCheckService.RealityRow} per available indicator.</p>
+     */
+    private List<RealityCheckService.RealityRow> buildDynamicRealityRows(
+            EconomyState econ, JsonObject root, int compareYear) {
+
+        List<RealityCheckService.RealityRow> rows = new ArrayList<>();
+
+        // Helper: read a value for the year; silently skip if WB has no data for that year
+        double gdpGrowth = HistoricalDataFetcher.getValueForYear(root, "gdpGrowthPct", compareYear);
+        if (!Double.isNaN(gdpGrowth)) {
+            rows.add(new RealityCheckService.RealityRow(
+                "GDP Annual Growth Rate (%)", gdpGrowth, econ.getGdpAnnualGrowthRate(), "%"));
+        }
+
+        double cpi = HistoricalDataFetcher.getValueForYear(root, "cpiInflationPct", compareYear);
+        if (!Double.isNaN(cpi)) {
+            rows.add(new RealityCheckService.RealityRow(
+                "CPI Inflation Rate (%)", cpi, econ.getInflationRate(), "%"));
+        }
+
+        double unemp = HistoricalDataFetcher.getValueForYear(root, "unemploymentPct", compareYear);
+        if (!Double.isNaN(unemp)) {
+            rows.add(new RealityCheckService.RealityRow(
+                "Unemployment Rate (%)", unemp, econ.getUnemploymentRate(), "%"));
+        }
+
+        double fx = HistoricalDataFetcher.getValueForYear(root, "fxUsdLcu", compareYear);
+        if (!Double.isNaN(fx)) {
+            rows.add(new RealityCheckService.RealityRow(
+                "USD/INR Exchange Rate", fx, econ.getCurrencyUsdInr(), "INR"));
+        }
+
+        // WB exports are annual USD current; compare against 4× quarterly sim value
+        double expRaw = HistoricalDataFetcher.getValueForYear(root, "exportsUsdBillion", compareYear);
+        if (!Double.isNaN(expRaw)) {
+            double expBn = expRaw * 1e-9;                    // convert raw USD → billion
+            rows.add(new RealityCheckService.RealityRow(
+                "Exports of G&S (USD bn/yr)", expBn, econ.getExportsUsdBillion() * 4.0, "USD bn"));
+        }
+
+        double ca = HistoricalDataFetcher.getValueForYear(root, "currentAccountPctGdp", compareYear);
+        if (!Double.isNaN(ca)) {
+            rows.add(new RealityCheckService.RealityRow(
+                "Current Account (% of GDP)", ca, econ.getCurrentAccountToGdp(), "% GDP"));
+        }
+
+        double debt = HistoricalDataFetcher.getValueForYear(root, "govtDebtPctGdp", compareYear);
+        if (!Double.isNaN(debt)) {
+            rows.add(new RealityCheckService.RealityRow(
+                "Government Debt (% of GDP)", debt, econ.getGovernmentDebtToGdp(), "% GDP"));
+        }
+
+        double lending = HistoricalDataFetcher.getValueForYear(root, "lendingRatePct", compareYear);
+        if (!Double.isNaN(lending)) {
+            rows.add(new RealityCheckService.RealityRow(
+                "Lending Interest Rate (%)", lending, econ.getBankLendingRate(), "%"));
+        }
+
+        return rows;
     }
 
     /**
