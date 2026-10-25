@@ -2,12 +2,10 @@ package com.india.econsim.controller;
 
 import com.google.gson.JsonObject;
 import com.india.econsim.model.EconomyState;
-import com.india.econsim.service.BacktestResult;
 import com.india.econsim.service.DynamicBacktestService;
 import com.india.econsim.service.HistoricalDataFetcher;
 import com.india.econsim.service.RealityCheckService;
 import com.india.econsim.service.SimulationEngine;
-import com.india.econsim.service.TimeMachineTestService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,8 +28,6 @@ public class SimulatorServlet extends HttpServlet {
     private static final long serialVersionUID = -6852783344442364087L;
 
     private static final Logger LOG = Logger.getLogger(SimulatorServlet.class.getName());
-
-    /** Resolved once at first use — works both from project root and from target/ */
     private static final Path HISTORY_FILE = Path.of("src/main/resources/india_historical_economy.json");
 
     @Override
@@ -51,36 +47,18 @@ public class SimulatorServlet extends HttpServlet {
         HttpSession session = req.getSession(true);
         String action = req.getParameter("action");
         String activeTab = req.getParameter("activeTab");
-        if (activeTab == null || activeTab.isEmpty()) {
-            activeTab = "Overview";
-        }
+        if (activeTab == null || activeTab.isEmpty()) activeTab = "Overview";
         req.setAttribute("activeTab", activeTab);
 
-        // 1. Handle Reset Action
         if ("reset".equals(action)) {
             session.setAttribute("econ", new EconomyState());
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
             return;
         }
 
-        // Handle Check With Reality backtest
-        if ("checkReality".equals(action)) {
-            RealityCheckService.RealityCheckResult result = RealityCheckService.run();
-            req.setAttribute("realityResult", result);
-            req.setAttribute("activeTab", activeTab);
-            EconomyState econ = (EconomyState) session.getAttribute("econ");
-            if (econ == null) econ = new EconomyState();
-            session.setAttribute("econ", econ);
-            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
-            return;
-        }
-
         // ── LOAD HISTORICAL YEAR ─────────────────────────────────────────────
-        // Seeds the live session EconomyState entirely from WB data for chosen year.
-        // After this the user sees all real indicators in the dashboard and can
-        // adjust levers then click +1 Year to simulate forward.
         if ("loadHistoricalYear".equals(action)) {
-            int loadYear = 2014;
+            int loadYear = 2011;
             try {
                 String y = req.getParameter("histYear");
                 if (y != null && !y.isEmpty()) loadYear = Integer.parseInt(y);
@@ -90,40 +68,32 @@ public class SimulatorServlet extends HttpServlet {
                 com.google.gson.JsonObject root = HistoricalDataFetcher.loadFromFile(HISTORY_FILE);
                 EconomyState seeded = DynamicBacktestService.seedFromWorldBank(root, loadYear);
                 seeded.setLastTurnSummary(String.format(
-                    "📅 Loaded World Bank actuals for %d. All indicators now reflect real historical data. " +
-                    "Adjust any policy lever, then click +1 Year to simulate %d. " +
-                    "When done, click '🔬 Dynamic Reality Check' to compare your simulation against WB %d actuals.",
-                    loadYear, loadYear + 1, loadYear + 1));
+                        "📅 Loaded World Bank actuals for %d. Adjust your policy levers, then click +1 Year to simulate %d. " +
+                                "Finally, click '🔬 Check With Reality' to dynamically compare your projection against WB %d actuals.",
+                        loadYear, loadYear + 1, loadYear + 1));
                 session.setAttribute("econ", seeded);
-                req.setAttribute("loadYearMsg", "✅ Loaded WB actuals for " + loadYear + ". Simulate forward, then click Dynamic Reality Check.");
+                req.setAttribute("loadYearMsg", "✅ Loaded WB actuals for " + loadYear + ". Simulate forward, then click Check With Reality.");
             } catch (HistoricalDataFetcher.HistoricalDataException e) {
                 LOG.warning("loadHistoricalYear failed: " + e.getMessage());
                 req.setAttribute("loadYearMsg", "❌ " + e.getMessage() + " — Click '🌐 Fetch WB Data' first.");
-                EconomyState econ = (EconomyState) session.getAttribute("econ");
-                if (econ == null) econ = new EconomyState();
-                session.setAttribute("econ", econ);
             }
-            req.setAttribute("activeTab", activeTab);
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
             return;
         }
 
-        // ── DYNAMIC REALITY CHECK ─────────────────────────────────────────────
-        // Compares the CURRENT session EconomyState (simulated) against WB actuals
-        // for econ.getYear() — i.e. the year AFTER the baseline that was loaded.
+        // ── DYNAMIC REALITY CHECK (Replaces Hardcoded 2015 Check) ─────────────
         if ("dynamicRealityCheck".equals(action)) {
             EconomyState econ = (EconomyState) session.getAttribute("econ");
             if (econ == null) econ = new EconomyState();
 
-            int compareYear = econ.getYear();   // the year the simulation is now in
+            int compareYear = econ.getYear(); // Evaluates the CURRENT simulated year against JSON
 
             try {
                 com.google.gson.JsonObject root = HistoricalDataFetcher.loadFromFile(HISTORY_FILE);
                 List<RealityCheckService.RealityRow> rows = buildDynamicRealityRows(econ, root, compareYear);
 
                 double totalErr = rows.stream().mapToDouble(r -> r.errorPct).sum();
-                double meanAcc  = rows.isEmpty() ? 0.0
-                        : Math.round((100.0 - totalErr / rows.size()) * 100.0) / 100.0;
+                double meanAcc  = rows.isEmpty() ? 0.0 : Math.round((100.0 - totalErr / rows.size()) * 100.0) / 100.0;
                 long pass = rows.stream().filter(r -> "PASS".equals(r.verdict)).count();
                 long warn = rows.stream().filter(r -> "WARN".equals(r.verdict)).count();
                 long fail = rows.stream().filter(r -> "FAIL".equals(r.verdict)).count();
@@ -132,100 +102,31 @@ public class SimulatorServlet extends HttpServlet {
                 result.rows.addAll(rows);
                 result.meanAccuracy = meanAcc;
                 result.summary = String.format(
-                    "Dynamic Reality Check — Simulated vs WB Actuals for %d | " +
-                    "Mean Accuracy: %.1f%% | ✅ PASS: %d | ⚠️ WARN: %d | ❌ FAIL: %d",
-                    compareYear, meanAcc, pass, warn, fail);
+                        "Simulated Results vs World Bank Actuals for %d | " +
+                                "Mean Accuracy: %.1f%% | ✅ PASS: %d | ⚠️ WARN: %d | ❌ FAIL: %d",
+                        compareYear, meanAcc, pass, warn, fail);
 
                 req.setAttribute("dynRealityResult", result);
                 req.setAttribute("dynRealityYear", compareYear);
             } catch (HistoricalDataFetcher.HistoricalDataException e) {
-                LOG.warning("dynamicRealityCheck failed: " + e.getMessage());
                 req.setAttribute("loadYearMsg", "❌ " + e.getMessage() + " — Fetch WB data first.");
             }
 
-            session.setAttribute("econ", econ);
-            req.setAttribute("activeTab", activeTab);
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
             return;
         }
 
-        // Handle Time Machine backtest — fetch data on demand then run backtest
         if ("fetchHistory".equals(action)) {
             try {
                 HistoricalDataFetcher.fetchAndSave(HISTORY_FILE);
-                req.setAttribute("tmMessage", "✅ World Bank data fetched successfully! You can now run a Time Machine backtest below.");
+                req.setAttribute("loadYearMsg", "✅ World Bank data fetched successfully! You can now load any historical year.");
             } catch (HistoricalDataFetcher.HistoricalDataException e) {
-                LOG.warning("History fetch failed: " + e.getMessage());
-                req.setAttribute("tmMessage", "❌ Fetch failed: " + e.getMessage() + ". Check network connectivity and retry.");
+                req.setAttribute("loadYearMsg", "❌ Fetch failed: " + e.getMessage());
             }
-            EconomyState econ = (EconomyState) session.getAttribute("econ");
-            if (econ == null) econ = new EconomyState();
-            session.setAttribute("econ", econ);
-            req.setAttribute("activeTab", activeTab);
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
             return;
         }
 
-        if ("timeMachine".equals(action)) {
-            int baselineYear = 2015;
-            try {
-                String yearParam = req.getParameter("tmYear");
-                if (yearParam != null && !yearParam.isEmpty()) {
-                    baselineYear = Integer.parseInt(yearParam);
-                }
-            } catch (NumberFormatException ignored) {}
-
-            try {
-                EconomyState seed = TimeMachineTestService.seedBaselineState(baselineYear);
-                BacktestResult result = TimeMachineTestService.runBacktest(seed, baselineYear, HISTORY_FILE);
-                req.setAttribute("timeMachineResult", result);
-            } catch (HistoricalDataFetcher.HistoricalDataException e) {
-                LOG.warning("Time machine backtest failed: " + e.getMessage());
-                req.setAttribute("tmMessage",
-                    "❌ Could not run backtest: " + e.getMessage() +
-                    ". Click '🌐 Fetch World Bank Data' first.");
-            } catch (IllegalArgumentException e) {
-                req.setAttribute("tmMessage", "❌ Invalid year: " + e.getMessage());
-            }
-
-            EconomyState econ = (EconomyState) session.getAttribute("econ");
-            if (econ == null) econ = new EconomyState();
-            session.setAttribute("econ", econ);
-            req.setAttribute("activeTab", activeTab);
-            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
-            return;
-        }
-
-        // Handle Dynamic World Bank backtest — seed from real WB data for chosen year
-        if ("dynamicBacktest".equals(action)) {
-            int baselineYear = 2014;
-            try {
-                String yearParam = req.getParameter("dynYear");
-                if (yearParam != null && !yearParam.isEmpty()) {
-                    baselineYear = Integer.parseInt(yearParam);
-                }
-            } catch (NumberFormatException ignored) {}
-
-            try {
-                BacktestResult result = DynamicBacktestService.runDynamicBacktest(baselineYear, HISTORY_FILE);
-                req.setAttribute("dynamicBacktestResult", result);
-            } catch (HistoricalDataFetcher.HistoricalDataException e) {
-                LOG.warning("Dynamic backtest failed: " + e.getMessage());
-                req.setAttribute("dynMessage",
-                    "❌ " + e.getMessage() + " — Click '🌐 Fetch WB Data' first.");
-            } catch (IllegalArgumentException e) {
-                req.setAttribute("dynMessage", "❌ " + e.getMessage());
-            }
-
-            EconomyState econ = (EconomyState) session.getAttribute("econ");
-            if (econ == null) econ = new EconomyState();
-            session.setAttribute("econ", econ);
-            req.setAttribute("activeTab", activeTab);
-            req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
-            return;
-        }
-
-        // 2. Handle Manual Indicator Override (backtesting seed)
         if ("editIndicator".equals(action)) {
             EconomyState econ = (EconomyState) session.getAttribute("econ");
             if (econ == null) econ = new EconomyState();
@@ -234,8 +135,8 @@ public class SimulatorServlet extends HttpServlet {
             if (fieldName != null && !Double.isNaN(newVal)) {
                 applyIndicatorOverride(econ, fieldName, newVal);
                 econ.setLastTurnSummary(String.format(
-                    "[Manual Override] %s set to %.4f for backtesting. Adjust policy sliders and click +1 Quarter / +1 Year to simulate forward.",
-                    fieldName, newVal));
+                        "[Manual Override] %s set to %.4f. Adjust policy sliders and click +1 Quarter / +1 Year.",
+                        fieldName, newVal));
             }
             session.setAttribute("econ", econ);
             req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
@@ -243,18 +144,12 @@ public class SimulatorServlet extends HttpServlet {
         }
 
         EconomyState econ = (EconomyState) session.getAttribute("econ");
-        if (econ == null) {
-            econ = new EconomyState();
-        }
+        if (econ == null) econ = new EconomyState();
 
-        // 2. Snapshot current indicator values BEFORE advancing time
-        // This guarantees that "+1 Year" (4 quarters) computes true 4-quarter net deltas
         Map<String, Double> preTurnSnapshot = captureSnapshot(econ);
-
-        // 3. Track which policy sliders the user modified this turn
         List<String> policyChanges = new ArrayList<>();
 
-        // Update & Audit Tax Levers
+        // Tax Levers
         econ.setCorporateTaxRate(parseAndTrack(req, "corporateTaxRate", "Corporate Tax", "%", econ.getCorporateTaxRate(), policyChanges));
         econ.setPersonalIncomeTaxRate(parseAndTrack(req, "personalIncomeTaxRate", "Personal Income Tax", "%", econ.getPersonalIncomeTaxRate(), policyChanges));
         econ.setSalesTaxGstRate(parseAndTrack(req, "salesTaxGstRate", "Sales Tax / GST", "%", econ.getSalesTaxGstRate(), policyChanges));
@@ -262,11 +157,11 @@ public class SimulatorServlet extends HttpServlet {
         econ.setWithholdingTaxRate(parseAndTrack(req, "withholdingTaxRate", "Withholding Tax", "%", econ.getWithholdingTaxRate(), policyChanges));
         econ.setCustomsDutyRate(parseAndTrack(req, "customsDutyRate", "Customs & Import Duty", "%", econ.getCustomsDutyRate(), policyChanges));
 
-        // Update & Audit RBI Monetary Levers
+        // RBI Monetary Levers
         econ.setInterestRate(parseAndTrack(req, "interestRate", "RBI Repo Rate", "%", econ.getInterestRate(), policyChanges));
         econ.setCashReserveRatio(parseAndTrack(req, "cashReserveRatio", "Cash Reserve Ratio (CRR)", "%", econ.getCashReserveRatio(), policyChanges));
 
-        // Update & Audit Sectoral Budget Allocations (% of GDP)
+        // Sectoral Budget Allocations
         econ.setInfraSpend(parseAndTrack(req, "infraSpend", "Infrastructure Spend", "% of GDP", econ.getInfraSpend(), policyChanges));
         econ.setEducationSpend(parseAndTrack(req, "educationSpend", "Education Spend", "% of GDP", econ.getEducationSpend(), policyChanges));
         econ.setHealthSpend(parseAndTrack(req, "healthSpend", "Healthcare Spend", "% of GDP", econ.getHealthSpend(), policyChanges));
@@ -283,18 +178,13 @@ public class SimulatorServlet extends HttpServlet {
         econ.setTaxBuoyancyCoeff(parseDouble(req, "taxBuoyancyCoeff", econ.getTaxBuoyancyCoeff()));
         econ.setNeutralRepoRate(parseDouble(req, "neutralRepoRate", econ.getNeutralRepoRate()));
 
-        // 4. Advance Simulation Steps (1 Quarter or 4 Quarters for +1 Year)
         int steps = "advanceYear".equals(action) ? 4 : 1;
         for (int i = 0; i < steps; i++) {
             SimulationEngine.advanceQuarter(econ);
         }
 
-        // 5. Reconcile Multi-Step Deltas (so +1 Year displays full 4-quarter net change)
-        if (steps > 1) {
-            reconcileMultiQuarterDeltas(econ, preTurnSnapshot);
-        }
+        if (steps > 1) reconcileMultiQuarterDeltas(econ, preTurnSnapshot);
 
-        // 6. Prepend User's Policy Changes & Append Causal Reason to Each Indicator
         String policyAuditSummary;
         if (!policyChanges.isEmpty()) {
             policyAuditSummary = "Policy Levers Changed (" + (steps == 4 ? "+1 Year" : "+1 Quarter") + "): "
@@ -308,7 +198,7 @@ public class SimulatorServlet extends HttpServlet {
         }
 
         econ.setLastTurnSummary(String.format(
-                "%sIn %d Q%d, Real Annual GDP Growth is %.2f%% (%+.2f%%), CPI Inflation is %.2f%% (%+.2f%%), Unemployment is %.2f%% (%+.2f%%), and Fiscal Budget is %.2f%% of GDP (%+.2f%%). Click any indicator row below to inspect its exact causal breakdown.",
+                "%sIn %d Q%d, Real Annual GDP Growth is %.2f%% (%+.2f%%), CPI Inflation is %.2f%% (%+.2f%%), Unemployment is %.2f%% (%+.2f%%), and Fiscal Budget is %.2f%% of GDP (%+.2f%%).",
                 policyAuditSummary,
                 econ.getYear(), econ.getQuarter(),
                 econ.getGdpAnnualGrowthRate(), econ.getDelta("gdpAnnualGrowthRate"),
@@ -321,80 +211,44 @@ public class SimulatorServlet extends HttpServlet {
         req.getRequestDispatcher("/simulator.jsp").forward(req, resp);
     }
 
-    /**
-     * Compares the current {@link EconomyState} (the user's simulated result) against
-     * real World Bank data for {@code compareYear}.
-     *
-     * <p>Called from the "dynamicRealityCheck" action after the user has:
-     * <ol>
-     *   <li>Loaded a historical WB baseline via "loadHistoricalYear" (year T)</li>
-     *   <li>Adjusted policy levers and clicked +1 Year to simulate year T+1</li>
-     * </ol>
-     * The method reads WB actuals for {@code compareYear} (= T+1) and returns one
-     * {@link RealityCheckService.RealityRow} per available indicator.</p>
-     */
     private List<RealityCheckService.RealityRow> buildDynamicRealityRows(
             EconomyState econ, JsonObject root, int compareYear) {
 
         List<RealityCheckService.RealityRow> rows = new ArrayList<>();
 
-        // Helper: read a value for the year; silently skip if WB has no data for that year
         double gdpGrowth = HistoricalDataFetcher.getValueForYear(root, "gdpGrowthPct", compareYear);
-        if (!Double.isNaN(gdpGrowth)) {
-            rows.add(new RealityCheckService.RealityRow(
-                "GDP Annual Growth Rate (%)", gdpGrowth, econ.getGdpAnnualGrowthRate(), "%"));
-        }
+        if (!Double.isNaN(gdpGrowth)) rows.add(new RealityCheckService.RealityRow("GDP Annual Growth Rate (%)", gdpGrowth, econ.getGdpAnnualGrowthRate(), "%"));
 
         double cpi = HistoricalDataFetcher.getValueForYear(root, "cpiInflationPct", compareYear);
-        if (!Double.isNaN(cpi)) {
-            rows.add(new RealityCheckService.RealityRow(
-                "CPI Inflation Rate (%)", cpi, econ.getInflationRate(), "%"));
-        }
+        if (!Double.isNaN(cpi)) rows.add(new RealityCheckService.RealityRow("CPI Inflation Rate (%)", cpi, econ.getInflationRate(), "%"));
 
         double unemp = HistoricalDataFetcher.getValueForYear(root, "unemploymentPct", compareYear);
-        if (!Double.isNaN(unemp)) {
-            rows.add(new RealityCheckService.RealityRow(
-                "Unemployment Rate (%)", unemp, econ.getUnemploymentRate(), "%"));
-        }
+        if (!Double.isNaN(unemp)) rows.add(new RealityCheckService.RealityRow("Unemployment Rate (%)", unemp, econ.getUnemploymentRate(), "%"));
 
         double fx = HistoricalDataFetcher.getValueForYear(root, "fxUsdLcu", compareYear);
-        if (!Double.isNaN(fx)) {
-            rows.add(new RealityCheckService.RealityRow(
-                "USD/INR Exchange Rate", fx, econ.getCurrencyUsdInr(), "INR"));
-        }
+        if (!Double.isNaN(fx)) rows.add(new RealityCheckService.RealityRow("USD/INR Exchange Rate", fx, econ.getCurrencyUsdInr(), "INR"));
 
-        // WB exports are annual USD current; compare against 4× quarterly sim value
         double expRaw = HistoricalDataFetcher.getValueForYear(root, "exportsUsdBillion", compareYear);
-        if (!Double.isNaN(expRaw)) {
-            double expBn = expRaw * 1e-9;                    // convert raw USD → billion
-            rows.add(new RealityCheckService.RealityRow(
-                "Exports of G&S (USD bn/yr)", expBn, econ.getExportsUsdBillion() * 4.0, "USD bn"));
-        }
+        if (!Double.isNaN(expRaw)) rows.add(new RealityCheckService.RealityRow("Exports of G&S (USD bn/yr)", expRaw * 1e-9, econ.getExportsUsdBillion() * 4.0, "USD bn"));
 
         double ca = HistoricalDataFetcher.getValueForYear(root, "currentAccountPctGdp", compareYear);
-        if (!Double.isNaN(ca)) {
-            rows.add(new RealityCheckService.RealityRow(
-                "Current Account (% of GDP)", ca, econ.getCurrentAccountToGdp(), "% GDP"));
+        if (!Double.isNaN(ca)) rows.add(new RealityCheckService.RealityRow("Current Account (% of GDP)", ca, econ.getCurrentAccountToGdp(), "% GDP"));
+
+        double fdi = HistoricalDataFetcher.getValueForYear(root, "fdiNetPctGdp", compareYear);
+        if (!Double.isNaN(fdi) && !Double.isNaN(expRaw)) {
+            double actualFdiBn = (fdi / 100.0) * (HistoricalDataFetcher.getValueForYear(root, "gdpUsdBillion", compareYear) * 1e-9) / 4.0;
+            rows.add(new RealityCheckService.RealityRow("FDI Net Inflows (USD bn/qtr)", actualFdiBn, econ.getForeignDirectInvestment(), "USD bn"));
         }
 
         double debt = HistoricalDataFetcher.getValueForYear(root, "govtDebtPctGdp", compareYear);
-        if (!Double.isNaN(debt)) {
-            rows.add(new RealityCheckService.RealityRow(
-                "Government Debt (% of GDP)", debt, econ.getGovernmentDebtToGdp(), "% GDP"));
-        }
+        if (!Double.isNaN(debt)) rows.add(new RealityCheckService.RealityRow("Government Debt (% of GDP)", debt, econ.getGovernmentDebtToGdp(), "% GDP"));
 
         double lending = HistoricalDataFetcher.getValueForYear(root, "lendingRatePct", compareYear);
-        if (!Double.isNaN(lending)) {
-            rows.add(new RealityCheckService.RealityRow(
-                "Lending Interest Rate (%)", lending, econ.getBankLendingRate(), "%"));
-        }
+        if (!Double.isNaN(lending)) rows.add(new RealityCheckService.RealityRow("Lending Interest Rate (%)", lending, econ.getBankLendingRate(), "%"));
 
         return rows;
     }
 
-    /**
-     * Parses a double parameter and logs if the user moved the slider from its prior value.
-     */
     private double parseDouble(HttpServletRequest req, String param, double fallback) {
         try {
             String val = req.getParameter(param);
@@ -402,8 +256,7 @@ public class SimulatorServlet extends HttpServlet {
         } catch (NumberFormatException e) { return fallback; }
     }
 
-    private double parseAndTrack(HttpServletRequest req, String paramName, String label, String unit,
-                                 double oldValue, List<String> changesLog) {
+    private double parseAndTrack(HttpServletRequest req, String paramName, String label, String unit, double oldValue, List<String> changesLog) {
         try {
             String raw = req.getParameter(paramName);
             if (raw != null && !raw.isEmpty()) {
@@ -414,108 +267,23 @@ public class SimulatorServlet extends HttpServlet {
                 }
                 return newVal;
             }
-        } catch (NumberFormatException ignored) {
-        }
+        } catch (NumberFormatException ignored) {}
         return oldValue;
     }
 
-    /**
-     * Captures all indicator values prior to running the simulation loop.
-     */
     private Map<String, Double> captureSnapshot(EconomyState s) {
         Map<String, Double> map = new HashMap<>();
         map.put("currencyUsdInr", s.getCurrencyUsdInr());
         map.put("stockMarketSensex", s.getStockMarketSensex());
         map.put("gdpGrowthRate", s.getGdpGrowthRate());
         map.put("gdpAnnualGrowthRate", s.getGdpAnnualGrowthRate());
-        map.put("fullYearGdpGrowth", s.getFullYearGdpGrowth());
-        map.put("gdpUsdBillion", s.getGdpUsdBillion());
-        map.put("gdpConstantPrices", s.getGdpConstantPrices());
-        map.put("grossFixedCapitalFormation", s.getGrossFixedCapitalFormation());
-        map.put("gdpPerCapita", s.getGdpPerCapita());
-        map.put("gdpPerCapitaPpp", s.getGdpPerCapitaPpp());
-        map.put("gnpInrCrore", s.getGnpInrCrore());
-        map.put("gdpFromAgriculture", s.getGdpFromAgriculture());
-        map.put("gdpFromManufacturing", s.getGdpFromManufacturing());
-        map.put("gdpFromConstruction", s.getGdpFromConstruction());
-        map.put("gdpFromPublicAdmin", s.getGdpFromPublicAdmin());
-        map.put("gdpFromUtilities", s.getGdpFromUtilities());
-        map.put("gdpFromMining", s.getGdpFromMining());
-
         map.put("unemploymentRate", s.getUnemploymentRate());
-        map.put("employmentRate", s.getEmploymentRate());
-        map.put("laborForceParticipation", s.getLaborForceParticipation());
-        map.put("populationMillion", s.getPopulationMillion());
-        map.put("minimumWages", s.getMinimumWages());
-        map.put("monthlyWages", s.getMonthlyWages());
-
         map.put("inflationRate", s.getInflationRate());
-        map.put("cpiPoints", s.getCpiPoints());
-        map.put("consumerFoodPriceIndex", s.getConsumerFoodPriceIndex());
-        map.put("cpiHousingUtilities", s.getCpiHousingUtilities());
-        map.put("cpiTransportation", s.getCpiTransportation());
-        map.put("cpiEducation", s.getCpiEducation());
-        map.put("cpiRestaurants", s.getCpiRestaurants());
-        map.put("wholesalePriceIndex", s.getWholesalePriceIndex());
-        map.put("wpiFoodYoY", s.getWpiFoodYoY());
-        map.put("producerPrices", s.getProducerPrices());
-        map.put("exportPrices", s.getExportPrices());
-        map.put("importPrices", s.getImportPrices());
-
-        map.put("interbankRate", s.getInterbankRate());
-        map.put("yieldCurveSpread", s.getYieldCurveSpread());
-        map.put("bankLoanGrowthYoY", s.getBankLoanGrowthYoY());
-        map.put("moneySupplyM1", s.getMoneySupplyM1());
-        map.put("foreignExchangeReserves", s.getForeignExchangeReserves());
-
         map.put("balanceOfTrade", s.getBalanceOfTrade());
-        map.put("exportsUsdBillion", s.getExportsUsdBillion());
-        map.put("importsUsdBillion", s.getImportsUsdBillion());
-        map.put("currentAccount", s.getCurrentAccount());
-        map.put("currentAccountToGdp", s.getCurrentAccountToGdp());
-        map.put("termsOfTrade", s.getTermsOfTrade());
-        map.put("foreignDirectInvestment", s.getForeignDirectInvestment());
-        map.put("remittancesUsdBillion", s.getRemittancesUsdBillion());
-        map.put("externalDebtUsdBillion", s.getExternalDebtUsdBillion());
-        map.put("touristArrivals", s.getTouristArrivals());
-
         map.put("governmentBudget", s.getGovernmentBudget());
-        map.put("governmentDebtToGdp", s.getGovernmentDebtToGdp());
-        map.put("governmentSpendingToGdp", s.getGovernmentSpendingToGdp());
-        map.put("governmentRevenues", s.getGovernmentRevenues());
-        map.put("fiscalExpenditure", s.getFiscalExpenditure());
-        map.put("corruptionIndex", s.getCorruptionIndex());
-
-        map.put("businessConfidence", s.getBusinessConfidence());
-        map.put("manufacturingPMI", s.getManufacturingPMI());
-        map.put("servicesPMI", s.getServicesPMI());
-        map.put("compositePMI", s.getCompositePMI());
-        map.put("netBusinessFormations", s.getNetBusinessFormations());
-        map.put("industrialProductionYoY", s.getIndustrialProductionYoY());
-        map.put("manufacturingProductionYoY", s.getManufacturingProductionYoY());
-        map.put("capacityUtilization", s.getCapacityUtilization());
-        map.put("passengerVehicleSales", s.getPassengerVehicleSales());
-        map.put("depositGrowthYoY", s.getDepositGrowthYoY());
-
-        map.put("consumerConfidence", s.getConsumerConfidence());
-        map.put("consumerDurablesIndex", s.getConsumerDurablesIndex());
-        map.put("retailSalesGrowthYoY", s.getRetailSalesGrowthYoY());
-        map.put("bankLendingRate", s.getBankLendingRate());
-        map.put("gasolinePrices", s.getGasolinePrices());
-        map.put("householdsDebtToGdp", s.getHouseholdsDebtToGdp());
-
-        map.put("housingIndex", s.getHousingIndex());
-        map.put("infrastructureOutputYoY", s.getInfrastructureOutputYoY());
-        map.put("residentialPropertyPricesYoY", s.getResidentialPropertyPricesYoY());
-
-        map.put("hospitalBedsPer1000", s.getHospitalBedsPer1000());
-        map.put("publicHealthReadinessIndex", s.getPublicHealthReadinessIndex());
         return map;
     }
 
-    /**
-     * Overwrites single-quarter deltas with full multi-quarter deltas when advancing +1 Year.
-     */
     private void reconcileMultiQuarterDeltas(EconomyState s, Map<String, Double> before) {
         Map<String, Double> after = captureSnapshot(s);
         Map<String, Double> deltas = s.getDeltas();
@@ -523,104 +291,27 @@ public class SimulatorServlet extends HttpServlet {
             String key = entry.getKey();
             double startVal = before.getOrDefault(key, entry.getValue());
             double endVal = entry.getValue();
-            double netDelta = Math.round((endVal - startVal) * 100.0) / 100.0;
-            deltas.put(key, netDelta);
+            deltas.put(key, Math.round((endVal - startVal) * 100.0) / 100.0);
         }
     }
 
-    /**
-     * Directly sets any EconomyState indicator field by name.
-     * Used for manual backtesting overrides via the Edit modal.
-     */
     private void applyIndicatorOverride(EconomyState s, String field, double v) {
         switch (field) {
-            // GDP
-            case "gdpGrowthRate":              s.setGdpGrowthRate(v); break;
-            case "gdpAnnualGrowthRate":        s.setGdpAnnualGrowthRate(v); s.setPrevAnnualGdpGrowth(v); break;
-            case "fullYearGdpGrowth":          s.setFullYearGdpGrowth(v); break;
-            case "gdpUsdBillion":              s.setGdpUsdBillion(v); break;
-            case "gdpConstantPrices":          s.setGdpConstantPrices(v); break;
-            case "grossFixedCapitalFormation": s.setGrossFixedCapitalFormation(v); break;
-            case "gdpPerCapita":               s.setGdpPerCapita(v); break;
-            case "gdpPerCapitaPpp":            s.setGdpPerCapitaPpp(v); break;
-            case "gnpInrCrore":                s.setGnpInrCrore(v); break;
-            case "gdpFromAgriculture":         s.setGdpFromAgriculture(v); break;
-            case "gdpFromManufacturing":       s.setGdpFromManufacturing(v); break;
-            case "gdpFromConstruction":        s.setGdpFromConstruction(v); break;
-            case "gdpFromPublicAdmin":         s.setGdpFromPublicAdmin(v); break;
-            case "gdpFromUtilities":           s.setGdpFromUtilities(v); break;
-            case "gdpFromMining":              s.setGdpFromMining(v); break;
-            // Labour
-            case "unemploymentRate":           s.setUnemploymentRate(v); break;
-            case "employmentRate":             s.setEmploymentRate(v); break;
-            case "laborForceParticipation":    s.setLaborForceParticipation(v); break;
-            case "populationMillion":          s.setPopulationMillion(v); break;
-            case "minimumWages":               s.setMinimumWages(v); break;
-            case "monthlyWages":               s.setMonthlyWages(v); break;
-            // Prices
-            case "inflationRate":              s.setInflationRate(v); break;
-            case "cpiPoints":                  s.setCpiPoints(v); break;
-            case "consumerFoodPriceIndex":     s.setConsumerFoodPriceIndex(v); break;
-            case "cpiHousingUtilities":        s.setCpiHousingUtilities(v); break;
-            case "cpiTransportation":          s.setCpiTransportation(v); break;
-            case "cpiEducation":               s.setCpiEducation(v); break;
-            case "cpiRestaurants":             s.setCpiRestaurants(v); break;
-            case "wholesalePriceIndex":        s.setWholesalePriceIndex(v); break;
-            case "wpiFoodYoY":                 s.setWpiFoodYoY(v); break;
-            case "producerPrices":             s.setProducerPrices(v); break;
-            case "exportPrices":               s.setExportPrices(v); break;
-            case "importPrices":               s.setImportPrices(v); break;
-            // Money
-            case "currencyUsdInr":             s.setCurrencyUsdInr(v); break;
-            case "stockMarketSensex":          s.setStockMarketSensex(v); break;
-            case "yieldCurveSpread":           s.setYieldCurveSpread(v); break;
-            case "interbankRate":              s.setInterbankRate(v); break;
-            case "bankLoanGrowthYoY":          s.setBankLoanGrowthYoY(v); break;
-            case "moneySupplyM1":              s.setMoneySupplyM1(v); break;
-            case "foreignExchangeReserves":    s.setForeignExchangeReserves(v); break;
-            // Trade
-            case "balanceOfTrade":             s.setBalanceOfTrade(v); break;
-            case "exportsUsdBillion":          s.setExportsUsdBillion(v); break;
-            case "importsUsdBillion":          s.setImportsUsdBillion(v); break;
-            case "currentAccount":             s.setCurrentAccount(v); break;
-            case "currentAccountToGdp":        s.setCurrentAccountToGdp(v); break;
-            case "termsOfTrade":               s.setTermsOfTrade(v); break;
-            case "foreignDirectInvestment":    s.setForeignDirectInvestment(v); break;
-            case "remittancesUsdBillion":      s.setRemittancesUsdBillion(v); break;
-            case "externalDebtUsdBillion":     s.setExternalDebtUsdBillion(v); break;
-            case "touristArrivals":            s.setTouristArrivals(v); break;
-            // Government
-            case "governmentBudget":           s.setGovernmentBudget(v); break;
-            case "governmentDebtToGdp":        s.setGovernmentDebtToGdp(v); break;
-            case "governmentSpendingToGdp":    s.setGovernmentSpendingToGdp(v); break;
-            case "governmentRevenues":         s.setGovernmentRevenues(v); break;
-            case "fiscalExpenditure":          s.setFiscalExpenditure(v); break;
-            case "corruptionIndex":            s.setCorruptionIndex(v); break;
-            // Business
-            case "businessConfidence":         s.setBusinessConfidence(v); break;
-            case "manufacturingPMI":           s.setManufacturingPMI(v); break;
-            case "servicesPMI":                s.setServicesPMI(v); break;
-            case "compositePMI":               s.setCompositePMI(v); break;
-            case "netBusinessFormations":      s.setNetBusinessFormations(v); break;
-            case "industrialProductionYoY":    s.setIndustrialProductionYoY(v); break;
-            case "manufacturingProductionYoY": s.setManufacturingProductionYoY(v); break;
-            case "capacityUtilization":        s.setCapacityUtilization(v); break;
-            case "passengerVehicleSales":       s.setPassengerVehicleSales(v); break;
-            case "depositGrowthYoY":           s.setDepositGrowthYoY(v); break;
-            // Consumer
-            case "consumerConfidence":         s.setConsumerConfidence(v); break;
-            case "consumerDurablesIndex":       s.setConsumerDurablesIndex(v); break;
-            case "retailSalesGrowthYoY":        s.setRetailSalesGrowthYoY(v); break;
-            case "bankLendingRate":             s.setBankLendingRate(v); break;
-            case "gasolinePrices":              s.setGasolinePrices(v); break;
-            case "householdsDebtToGdp":         s.setHouseholdsDebtToGdp(v); break;
-            // Housing
-            case "housingIndex":                s.setHousingIndex(v); break;
-            case "infrastructureOutputYoY":     s.setInfrastructureOutputYoY(v); break;
-            case "residentialPropertyPricesYoY":s.setResidentialPropertyPricesYoY(v); break;
-            // Health
-            case "hospitalBedsPer1000":         s.setHospitalBedsPer1000(v); break;
-            case "publicHealthReadinessIndex":  s.setPublicHealthReadinessIndex(v); break;
+            case "gdpGrowthRate": s.setGdpGrowthRate(v); break;
+            case "gdpAnnualGrowthRate": s.setGdpAnnualGrowthRate(v); s.setPrevAnnualGdpGrowth(v); break;
+            case "unemploymentRate": s.setUnemploymentRate(v); break;
+            case "inflationRate": s.setInflationRate(v); break;
+            case "currencyUsdInr": s.setCurrencyUsdInr(v); break;
+            case "stockMarketSensex": s.setStockMarketSensex(v); break;
+            case "balanceOfTrade": s.setBalanceOfTrade(v); break;
+            case "currentAccount": s.setCurrentAccount(v); break;
+            case "currentAccountToGdp": s.setCurrentAccountToGdp(v); break;
+            case "governmentDebtToGdp": s.setGovernmentDebtToGdp(v); break;
+            case "governmentBudget": s.setGovernmentBudget(v); break;
+            case "businessConfidence": s.setBusinessConfidence(v); break;
+            case "manufacturingPMI": s.setManufacturingPMI(v); break;
+            case "servicesPMI": s.setServicesPMI(v); break;
+            case "consumerConfidence": s.setConsumerConfidence(v); break;
         }
     }
 }

@@ -46,7 +46,6 @@
             background: var(--panel); border: 1px solid var(--blue);
             padding: 6px 14px; border-radius: 6px; font-weight: 700; color: var(--blue); font-size: 0.88rem;
         }
-        /* KPI strip below top bar */
         .kpi-strip {
             display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px;
         }
@@ -63,7 +62,6 @@
             padding: 10px 14px; border-radius: 6px; margin-bottom: 14px; font-size: 0.85rem; line-height: 1.45;
         }
 
-        /* MAIN LAYOUT: indicators (1fr) LEFT, levers panel (340px) RIGHT */
         .main-grid { display: grid; grid-template-columns: 1fr 340px; gap: 18px; align-items: start; }
         .card { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
         .card h3 {
@@ -71,7 +69,6 @@
             color: var(--blue); border-bottom: 1px solid var(--border); padding-bottom: 6px;
         }
 
-        /* Sticky levers panel */
         .levers-panel {
             position: sticky; top: 18px; max-height: calc(100vh - 36px);
             overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--border) transparent;
@@ -79,7 +76,6 @@
         .levers-panel::-webkit-scrollbar { width: 5px; }
         .levers-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
-        /* Collapsible lever sections */
         .lever-section { margin-bottom: 4px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
         .lever-section-header {
             display: flex; justify-content: space-between; align-items: center;
@@ -99,7 +95,6 @@
         .slider-row label strong { color: var(--accent); min-width: 44px; text-align: right; }
         .slider-row input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; height: 4px; }
 
-        /* Action buttons */
         .action-bar {
             display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 12px 0 4px;
         }
@@ -110,14 +105,7 @@
         .b-qtr { background: var(--accent); }
         .b-yr  { background: #2563eb; }
         .b-rst { background: #475569; }
-        .b-cwr { background: #0d9488; }
-        .btn-group { display: flex; gap: 8px; margin-top: 12px; }
-        .btn-group button {
-            flex: 1; padding: 9px; border: none; border-radius: 5px;
-            font-weight: 700; cursor: pointer; color: #fff; font-size: 0.82rem;
-        }
 
-        /* Trading Economics Tab Bar */
         .te-tabs {
             display: flex; flex-wrap: wrap; background: #1e293b; border-radius: 6px 6px 0 0;
             overflow: hidden; border: 1px solid var(--border); gap: 2px; padding: 4px 4px 0;
@@ -155,15 +143,6 @@
         .b-coin { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid var(--green); }
         .b-lag  { background: rgba(192,132,252,0.15); color: var(--purple); border: 1px solid var(--purple); }
 
-        /* Time machine section in levers panel */
-        .tm-section {
-            margin-top: 10px; border-top: 1px solid var(--border); padding-top: 10px;
-        }
-        .tm-section h4 {
-            margin: 0 0 6px; font-size: 0.78rem; text-transform: uppercase; color: #a78bfa; letter-spacing: 0.04em;
-        }
-
-        /* LIVE PROS & CONS POPUP TOAST */
         #policyPopup {
             display: none; position: fixed; bottom: 22px; right: 22px; width: 430px;
             background: #0f172a; border: 2px solid var(--accent); border-radius: 10px;
@@ -176,68 +155,25 @@
         .pc-con { color: var(--red); font-weight: 700; }
         .pc-ind { color: var(--blue); font-weight: 700; }
 
-        /* INDICATOR CAUSAL REASON MODAL */
-        #reasonModalOverlay {
+        #reasonModalOverlay, #editModalOverlay, #dynRealityOverlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.65); z-index: 10000; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.72); z-index: 10000; align-items: center; justify-content: center;
         }
-        .reason-modal {
+        .reason-modal, .edit-modal {
             background: var(--panel); border: 2px solid var(--blue); border-radius: 10px;
             width: 520px; max-width: 92%; padding: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.8);
         }
         .reason-modal h3 { margin-top: 0; color: var(--blue); }
-
-        /* EDIT INDICATOR MODAL */
-        #editModalOverlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.72); z-index: 10001; align-items: center; justify-content: center;
-        }
-        .edit-modal {
-            background: var(--panel); border: 2px solid var(--accent); border-radius: 10px;
-            width: 420px; max-width: 92%; padding: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.85);
-        }
-        .edit-modal h3 { margin-top: 0; color: var(--accent); font-size: 1rem; }
-        .edit-modal input[type=number] {
-            width: 100%; padding: 9px 12px; background: #0f172a; border: 1px solid var(--border);
-            border-radius: 5px; color: var(--text); font-size: 1rem; margin: 10px 0 6px 0;
-        }
-        .edit-modal .hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
-        .edit-modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
-        .edit-modal .btn-row button {
-            padding: 7px 18px; border: none; border-radius: 5px; font-weight: 700;
-            cursor: pointer; font-size: 0.85rem; color: #fff;
-        }
-        .btn-save { background: var(--accent); }
-        .btn-cancel { background: #475569; }
-        .edit-btn {
-            background: none; border: 1px solid #f97316; color: #f97316;
-            border-radius: 4px; padding: 2px 6px; font-size: 0.70rem; cursor: pointer;
-            font-weight: 700; opacity: 0.75;
-        }
-        .edit-btn:hover { opacity: 1; }
-
-        /* EDIT INDICATOR MODAL */
-        #editModalOverlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.72); z-index: 10001; align-items: center; justify-content: center;
-        }
-        .edit-modal {
-            background: var(--panel); border: 2px solid var(--accent); border-radius: 10px;
-            width: 420px; max-width: 92%; padding: 22px; box-shadow: 0 15px 40px rgba(0,0,0,0.85);
-        }
-        .edit-modal h3 { margin-top: 0; color: var(--accent); font-size: 1rem; }
+        .edit-modal { border-color: var(--accent); width: 420px; }
+        .edit-modal h3 { color: var(--accent); font-size: 1rem; }
         .edit-modal input[type=number] {
             width: 100%; padding: 9px 12px; background: #0f172a; border: 1px solid var(--border);
             border-radius: 5px; color: var(--text); font-size: 1rem; margin: 10px 0 14px 0;
         }
-        .edit-modal .hint { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
         .edit-modal .btn-row { display: flex; gap: 10px; justify-content: flex-end; }
         .edit-modal .btn-row button {
-            padding: 7px 18px; border: none; border-radius: 5px; font-weight: 700;
-            cursor: pointer; font-size: 0.85rem; color: #fff;
+            padding: 7px 18px; border: none; border-radius: 5px; font-weight: 700; cursor: pointer; color: #fff;
         }
-        .btn-save { background: var(--accent); }
-        .btn-cancel { background: #475569; }
         .edit-btn {
             background: none; border: 1px solid var(--accent); color: var(--accent);
             border-radius: 4px; padding: 2px 7px; font-size: 0.72rem; cursor: pointer;
@@ -262,7 +198,6 @@
     </div>
 </div>
 
-<!-- KPI STRIP -->
 <%
     String gdpDeltaColor = econ.getDelta("gdpAnnualGrowthRate") >= 0 ? "#22c55e" : "#ef4444";
     String infDeltaColor = econ.getDelta("inflationRate") <= 0 ? "#22c55e" : "#ef4444";
@@ -308,10 +243,7 @@
 </div>
 
 <div class="main-grid">
-
-    <!-- LEFT: ALL 11 INDICATOR TABS (wide, primary view) -->
     <div>
-
         <div class="te-tabs">
             <% String[] tabs = {"Overview", "GDP", "Labour", "Prices", "Money", "Trade", "Government", "Business", "Consumer", "Housing", "Health"};
                for (String t : tabs) { %>
@@ -320,7 +252,6 @@
             <% } %>
         </div>
 
-        <!-- TAB 1: OVERVIEW -->
         <div id="tab-Overview" class="tab-pane <%= "Overview".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Overview Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why? / Edit</th></tr></thead>
@@ -370,7 +301,6 @@
             </table>
         </div>
 
-        <!-- TAB 3: LABOUR -->
         <div id="tab-Labour" class="tab-pane <%= "Labour".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Labour Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -385,7 +315,6 @@
             </table>
         </div>
 
-        <!-- TAB 4: PRICES -->
         <div id="tab-Prices" class="tab-pane <%= "Prices".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Prices Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -406,7 +335,6 @@
             </table>
         </div>
 
-        <!-- TAB 5: MONEY -->
         <div id="tab-Money" class="tab-pane <%= "Money".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Money & Banking Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -420,7 +348,6 @@
             </table>
         </div>
 
-        <!-- TAB 6: TRADE -->
         <div id="tab-Trade" class="tab-pane <%= "Trade".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Trade Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -428,7 +355,7 @@
                     <tr onclick="showWhy('Balance of Trade', 'balanceOfTrade')"><td>Balance of Trade</td><td class="val-col"><%= econ.getBalanceOfTrade() %></td><td><%= fmtDelta(econ, "balanceOfTrade", false) %></td><td>USD Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Exports', 'exportsUsdBillion')"><td>Exports</td><td class="val-col"><%= econ.getExportsUsdBillion() %></td><td><%= fmtDelta(econ, "exportsUsdBillion", false) %></td><td>USD Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Imports', 'importsUsdBillion')"><td>Imports</td><td class="val-col"><%= econ.getImportsUsdBillion() %></td><td><%= fmtDelta(econ, "importsUsdBillion", true) %></td><td>USD Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('Current Account', 'currentAccount')"><td>Current Account</td><td class="val-col"><%= econ.getCurrentAccount() %></td><td><%= fmtDelta(econ, "currentAccount", false) %></td><td>USD Million</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
+                    <tr onclick="showWhy('Current Account', 'currentAccount')"><td>Current Account</td><td class="val-col"><%= econ.getCurrentAccount() %></td><td><%= fmtDelta(econ, "currentAccount", false) %></td><td>USD Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Current Account to GDP', 'currentAccountToGdp')"><td>Current Account to GDP</td><td class="val-col"><%= econ.getCurrentAccountToGdp() %></td><td><%= fmtDelta(econ, "currentAccountToGdp", false) %></td><td>% of GDP</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Terms of Trade', 'termsOfTrade')"><td>Terms of Trade</td><td class="val-col"><%= econ.getTermsOfTrade() %></td><td><%= fmtDelta(econ, "termsOfTrade", false) %></td><td>points</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Foreign Direct Investment (FDI)', 'foreignDirectInvestment')"><td>Foreign Direct Investment (FDI)</td><td class="val-col"><%= econ.getForeignDirectInvestment() %></td><td><%= fmtDelta(econ, "foreignDirectInvestment", false) %></td><td>USD Billion/Qtr</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
@@ -439,7 +366,6 @@
             </table>
         </div>
 
-        <!-- TAB 7: GOVERNMENT -->
         <div id="tab-Government" class="tab-pane <%= "Government".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Government & Fiscal Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -454,7 +380,6 @@
             </table>
         </div>
 
-        <!-- TAB 8: BUSINESS -->
         <div id="tab-Business" class="tab-pane <%= "Business".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Business Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -473,7 +398,6 @@
             </table>
         </div>
 
-        <!-- TAB 9: CONSUMER -->
         <div id="tab-Consumer" class="tab-pane <%= "Consumer".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Consumer Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -488,7 +412,6 @@
             </table>
         </div>
 
-        <!-- TAB 10: HOUSING -->
         <div id="tab-Housing" class="tab-pane <%= "Housing".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Housing Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -496,12 +419,11 @@
                     <tr onclick="showWhy('Housing Index (NHB Residex)', 'housingIndex')"><td>Housing Index (NHB Residex)</td><td class="val-col"><%= econ.getHousingIndex() %></td><td><%= fmtDelta(econ, "housingIndex", false) %></td><td>points</td><td><span class="badge b-lead">Leading</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Infrastructure Output YoY', 'infrastructureOutputYoY')"><td>Infrastructure Output YoY</td><td class="val-col"><%= econ.getInfrastructureOutputYoY() %></td><td><%= fmtDelta(econ, "infrastructureOutputYoY", false) %></td><td>%</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                     <tr onclick="showWhy('Residential Property Prices YoY', 'residentialPropertyPricesYoY')"><td>Residential Property Prices YoY</td><td class="val-col"><%= econ.getResidentialPropertyPricesYoY() %></td><td><%= fmtDelta(econ, "residentialPropertyPricesYoY", false) %></td><td>%</td><td><span class="badge b-lag">Lagging</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
-                    <tr onclick="showWhy('GDP from Construction', 'gdpFromConstruction')"><td>GDP from Construction</td><td class="val-col"><%= econ.getGdpFromConstruction() %></td><td><%= fmtDelta(econ, "gdpFromConstruction", false) %></td><td>INR Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
+                    <tr onclick="showWhy('GDP from Construction', 'gdpFrom Construction')"><td>GDP from Construction</td><td class="val-col"><%= econ.getGdpFromConstruction() %></td><td><%= fmtDelta(econ, "gdpFromConstruction", false) %></td><td>INR Billion</td><td><span class="badge b-coin">Coincident</span></td><td><button type="button" class="why-btn">Why?</button></td></tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- TAB 11: HEALTH -->
         <div id="tab-Health" class="tab-pane <%= "Health".equals(activeTab) ? "active" : "" %>">
             <table class="te-table">
                 <thead><tr><th>Health Indicator</th><th>Value</th><th>Change (&Delta;)</th><th>Unit</th><th>Class</th><th>Why?</th></tr></thead>
@@ -512,32 +434,28 @@
             </table>
         </div>
     </div>
-    <!-- END LEFT: INDICATOR TABS -->
 
     <!-- RIGHT: STICKY POLICY LEVERS PANEL -->
     <div class="levers-panel">
       <form action="<%= request.getContextPath() %>/simulate" method="post" class="card" style="padding:12px;">
         <input type="hidden" id="activeTabInput" name="activeTab" value="<%= activeTab %>">
 
-        <!-- ACTION BUTTONS -->
         <div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);">
             <div style="font-size:0.69rem;color:var(--muted);text-transform:uppercase;font-weight:700;letter-spacing:0.05em;margin-bottom:6px;">⚙️ Simulation Controls</div>
             <div class="action-bar">
                 <button type="submit" name="action" value="advanceQuarter" class="b-qtr">▶ +1 Quarter</button>
                 <button type="submit" name="action" value="advanceYear"    class="b-yr" >▶▶ +1 Year</button>
-                <button type="submit" name="action" value="checkReality"   class="b-cwr">🔬 Reality Check</button>
-                <button type="submit" name="action" value="reset"          class="b-rst">↺ Reset</button>
+                <button type="submit" name="action" value="reset"          class="b-rst" style="grid-column: span 2;">↺ Reset</button>
             </div>
             <div class="action-bar" style="margin-top:6px;">
                 <button type="submit" name="action" value="dynamicRealityCheck"
-                        style="background:#b45309;font-size:0.76rem;width:100%;"
+                        style="background:#0d9488;font-size:0.76rem;width:100%;grid-column: span 2;"
                         title="Compare your simulation against World Bank actuals for the current year">
-                    🔬 Dynamic Reality Check
+                    🔬 Check With Reality
                 </button>
             </div>
         </div>
 
-        <!-- TAXES & TARIFFS -->
         <div class="lever-section">
             <button type="button" class="lever-section-header" onclick="toggleSection(this)">
                 🏦 Taxes &amp; Tariffs <i class="chevron">▾</i>
@@ -552,7 +470,6 @@
             </div>
         </div>
 
-        <!-- RBI MONETARY -->
         <div class="lever-section">
             <button type="button" class="lever-section-header" onclick="toggleSection(this)">
                 🏛️ RBI Monetary <i class="chevron">▾</i>
@@ -563,7 +480,6 @@
             </div>
         </div>
 
-        <!-- SECTORAL BUDGETS -->
         <div class="lever-section">
             <button type="button" class="lever-section-header" onclick="toggleSection(this)">
                 📊 Sectoral Budgets (% GDP) <i class="chevron">▾</i>
@@ -579,7 +495,6 @@
             </div>
         </div>
 
-        <!-- EXOGENOUS SHOCKS — collapsed by default -->
         <div class="lever-section">
             <button type="button" class="lever-section-header collapsed" onclick="toggleSection(this)">
                 ⚡ Exogenous Shocks <i class="chevron">▾</i>
@@ -594,36 +509,28 @@
             </div>
         </div>
 
-        <!-- LOAD HISTORICAL YEAR — collapsed by default -->
         <div class="lever-section">
-            <button type="button" class="lever-section-header collapsed" onclick="toggleSection(this)">
+            <button type="button" class="lever-section-header" onclick="toggleSection(this)">
                 📅 Load Historical Year <i class="chevron">▾</i>
             </button>
-            <div class="lever-section-body hidden">
+            <div class="lever-section-body">
                 <p style="font-size:0.75rem;color:var(--muted);margin:0 0 10px;line-height:1.5;">
                     Seeds <strong style="color:var(--text);">all indicators</strong> from real World Bank data for the chosen year.
                     Then adjust policy levers, click <strong>▶▶ +1 Year</strong> to simulate forward,
-                    and finally click <strong>🔬 Dynamic Reality Check</strong> to compare against WB actuals.
+                    and finally click <strong>🔬 Check With Reality</strong> above.
                 </p>
-                <div style="background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:0.73rem;color:var(--muted);line-height:1.5;">
-                    <strong style="color:#fbbf24;">Workflow:</strong><br>
-                    1. Click <strong>🌐 Fetch WB Data</strong> once (Dynamic WB Backtest section)<br>
-                    2. Pick a year below and click <strong>📥 Load Year</strong><br>
-                    3. Adjust policy levers → <strong>▶▶ +1 Year</strong><br>
-                    4. Click <strong>🔬 Dynamic Reality Check</strong> above
-                </div>
                 <div style="margin-bottom:8px;">
                     <label style="font-size:0.76rem;color:var(--muted);display:block;margin-bottom:4px;">Historical Year to load:</label>
-                    <select name="histYear" id="histYearSelect" style="width:100%;background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:0.83rem;" onchange="updateHistLabel(this.value)">
+                    <select name="histYear" id="histYearSelect" style="width:100%;background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:0.83rem;">
                         <option value="2006">2006</option>
                         <option value="2007">2007</option>
                         <option value="2008">2008 (GFC)</option>
                         <option value="2009">2009</option>
                         <option value="2010">2010</option>
-                        <option value="2011">2011</option>
+                        <option value="2011" selected>2011</option>
                         <option value="2012">2012</option>
                         <option value="2013">2013 (Taper Tantrum)</option>
-                        <option value="2014" selected>2014</option>
+                        <option value="2014">2014</option>
                         <option value="2015">2015 (Demonetisation yr)</option>
                         <option value="2016">2016</option>
                         <option value="2017">2017 (GST launch)</option>
@@ -635,65 +542,12 @@
                         <option value="2023">2023</option>
                     </select>
                 </div>
-                <div id="histYearLabel" style="font-size:0.72rem;color:#fbbf24;margin-bottom:8px;text-align:center;">
-                    Loads WB 2014 actuals → simulate → compare vs WB 2015
-                </div>
                 <div class="action-bar">
-                    <button type="submit" name="action" value="loadHistoricalYear" style="background:#b45309;font-size:0.76rem;width:100%;" title="Seed all indicators from World Bank data for the chosen year">
-                        📥 Load Year into Simulator
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- DYNAMIC WORLD BANK BACKTEST — collapsed by default -->
-        <div class="lever-section">
-            <button type="button" class="lever-section-header collapsed" onclick="toggleSection(this)">
-                🌍 Dynamic WB Backtest <i class="chevron">▾</i>
-            </button>
-            <div class="lever-section-body hidden">
-                <p style="font-size:0.75rem;color:var(--muted);margin:0 0 10px;line-height:1.5;">
-                    Pick any year. The engine fetches <strong style="color:var(--text);">real World Bank data</strong> for that year, simulates forward, then compares against the <em>next year's</em> actual WB data — fully automatic, no hard-coded values.
-                </p>
-                <div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:6px;padding:8px 10px;margin-bottom:10px;font-size:0.73rem;color:var(--muted);line-height:1.5;">
-                    <strong style="color:var(--blue);">How it works:</strong><br>
-                    1. Click <strong>🌐 Fetch</strong> once to cache 20 yrs of WB data<br>
-                    2. Pick a <strong>Baseline Year</strong> (e.g. 2014)<br>
-                    3. Click <strong>▶ Simulate &amp; Compare</strong><br>
-                    → Seeds from WB 2014 actuals → simulates → compares vs WB 2015 actuals
-                </div>
-                <div style="margin-bottom:8px;">
-                    <label style="font-size:0.76rem;color:var(--muted);display:block;margin-bottom:4px;">Baseline Year (seeds simulation):</label>
-                    <select name="dynYear" id="dynYearSelect" style="width:100%;background:#0f172a;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:0.83rem;" onchange="updateDynLabel(this.value)">
-                        <option value="2006">2006 → 2007</option>
-                        <option value="2007">2007 → 2008</option>
-                        <option value="2008">2008 → 2009 (GFC)</option>
-                        <option value="2009">2009 → 2010</option>
-                        <option value="2010">2010 → 2011</option>
-                        <option value="2011">2011 → 2012</option>
-                        <option value="2012">2012 → 2013</option>
-                        <option value="2013">2013 → 2014 (Taper Tantrum)</option>
-                        <option value="2014" selected>2014 → 2015</option>
-                        <option value="2015">2015 → 2016 (Demonetisation)</option>
-                        <option value="2016">2016 → 2017</option>
-                        <option value="2017">2017 → 2018 (GST launch)</option>
-                        <option value="2018">2018 → 2019 (NBFC crisis)</option>
-                        <option value="2019">2019 → 2020 (COVID shadow)</option>
-                        <option value="2020">2020 → 2021 (COVID)</option>
-                        <option value="2021">2021 → 2022 (Recovery)</option>
-                        <option value="2022">2022 → 2023 (Inflation surge)</option>
-                        <option value="2023">2023 → 2024</option>
-                    </select>
-                </div>
-                <div id="dynYearLabel" style="font-size:0.72rem;color:var(--blue);margin-bottom:8px;text-align:center;">
-                    Seed from WB 2014 actuals → Simulate → Compare vs WB 2015 actuals
-                </div>
-                <div class="action-bar">
-                    <button type="submit" name="action" value="fetchHistory" style="background:#7c3aed;font-size:0.76rem;" title="Download 20 years of India data from World Bank API (once)">
+                    <button type="submit" name="action" value="fetchHistory" style="background:#7c3aed;font-size:0.76rem;" title="Download 20 years of India data from World Bank API">
                         🌐 Fetch WB Data
                     </button>
-                    <button type="submit" name="action" value="dynamicBacktest" style="background:#059669;font-size:0.76rem;" title="Seed from selected year, simulate, compare vs next year">
-                        ▶ Simulate &amp; Compare
+                    <button type="submit" name="action" value="loadHistoricalYear" style="background:#b45309;font-size:0.76rem;" title="Seed all indicators from World Bank data for the chosen year">
+                        📥 Load Year
                     </button>
                 </div>
             </div>
@@ -701,11 +555,8 @@
 
       </form>
     </div>
-    <!-- END RIGHT: LEVERS PANEL -->
-
 </div>
 
-<!-- 1. FLOATING LIVE PROS & CONS POPUP WHEN ADJUSTING ANY SLIDER -->
 <div id="policyPopup">
     <h4>
         <span id="popTitle">Policy Impact Preview</span>
@@ -717,7 +568,6 @@
     <div class="pc-section"><span class="pc-ind">📈 INDICATOR CASCADE:</span> <span id="popInds"></span></div>
 </div>
 
-<!-- 2. MODAL POPUP EXPLAINING WHY AN INDICATOR GREW OR FELL -->
 <div id="reasonModalOverlay" onclick="this.style.display='none'">
     <div class="reason-modal" onclick="event.stopPropagation()">
         <h3 id="modalIndTitle">Indicator Causal Analysis</h3>
@@ -730,15 +580,14 @@
 </div>
 
 <script>
-    // Server-generated map of exact causal reasons for every indicator
 const indicatorReasons = {
     <% for (java.util.Map.Entry<String, String> entry : econ.getReasons().entrySet()) { %>
         "<%= entry.getKey() %>": "<%= entry.getValue().replace("\"", "\\\"") %>",
     <% } %>
 };
 
-    // Inject ✏️ edit buttons into every table row that has a Why? button
     document.querySelectorAll('.te-table tbody tr').forEach(function(row) {
+        if (row.querySelector('.edit-btn')) return;
         const whyBtn = row.querySelector('.why-btn');
         if (!whyBtn) return;
         const valCell = row.querySelector('.val-col');
@@ -746,7 +595,6 @@ const indicatorReasons = {
         const labelCell = row.cells[0];
         const currentVal = valCell.innerText.trim();
         const label = labelCell ? labelCell.innerText.trim() : '';
-        // derive field key from the row's onclick attribute
         const onclk = row.getAttribute('onclick') || '';
         const m = onclk.match(/'([a-zA-Z]+)'\.?\s*\)\s*$/);
         if (!m) return;
@@ -784,23 +632,10 @@ const indicatorReasons = {
         body.classList.toggle('hidden');
     }
 
-    function updateDynLabel(year) {
-        const next = parseInt(year) + 1;
-        const el = document.getElementById('dynYearLabel');
-        if (el) el.innerText = 'Seed from WB ' + year + ' actuals → Simulate → Compare vs WB ' + next + ' actuals';
+    function syncLabel(id, val, suffix) {
+        document.getElementById(id).innerText = val + suffix;
     }
 
-    function updateHistLabel(year) {
-        const next = parseInt(year) + 1;
-        const el = document.getElementById('histYearLabel');
-        if (el) el.innerText = 'Loads WB ' + year + ' actuals → simulate → compare vs WB ' + next;
-    }
-
-    function syncLabel(id, val, unit) {
-        document.getElementById(id).innerText = val + unit;
-    }
-
-    // Comprehensive Pros, Cons & Indicator Cascade Dictionary for all 15 Levers
     const policyKnowledgeBase = {
         corporateTaxRate: {
             name: "Corporate Tax Rate", labelId: "lbl_corp",
@@ -999,10 +834,6 @@ const indicatorReasons = {
         }
     };
 
-    function syncLabel(id, val, suffix) {
-        document.getElementById(id).innerText = val + suffix;
-    }
-
     function onPolicyAdjust(key, inputEl, unit) {
         const info = policyKnowledgeBase[key];
         if (!info) return;
@@ -1036,272 +867,6 @@ const indicatorReasons = {
     }
 </script>
 
-<!-- 4. CHECK WITH REALITY RESULTS MODAL -->
-<%
-    RealityCheckService.RealityCheckResult realityResult =
-        (RealityCheckService.RealityCheckResult) request.getAttribute("realityResult");
-    if (realityResult != null) {
-%>
-<div id="realityModalOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.75);z-index:10002;align-items:center;justify-content:center;">
-    <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #0d9488;border-radius:10px;width:780px;max-width:95%;max-height:88vh;overflow-y:auto;padding:22px;box-shadow:0 15px 40px rgba(0,0,0,0.9);">
-        <h3 style="margin-top:0;color:#0d9488;font-size:1.05rem;">&#128300; Check With Reality &mdash; FY 2015-16 &rarr; 2016-17 Backtest</h3>
-        <div style="background:rgba(13,148,136,0.1);border-left:4px solid #0d9488;padding:10px 14px;border-radius:5px;margin-bottom:14px;font-size:0.83rem;line-height:1.5;">
-            <%= realityResult.summary %>
-        </div>
-        <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
-            <thead>
-                <tr style="background:#1e293b;">
-                    <th style="padding:8px;text-align:left;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Indicator</th>
-                    <th style="padding:8px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">CSO/RBI Actual</th>
-                    <th style="padding:8px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Simulated</th>
-                    <th style="padding:8px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Error %</th>
-                    <th style="padding:8px;text-align:center;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Verdict</th>
-                </tr>
-            </thead>
-            <tbody>
-            <% for (RealityCheckService.RealityRow row : realityResult.rows) {
-                String rowColor = row.verdict.equals("PASS") ? "rgba(34,197,94,0.08)" :
-                                  row.verdict.equals("WARN") ? "rgba(251,191,36,0.08)" : "rgba(239,68,68,0.08)";
-                String verdictColor = row.verdict.equals("PASS") ? "#22c55e" :
-                                      row.verdict.equals("WARN") ? "#fbbf24" : "#ef4444";
-                String verdictIcon  = row.verdict.equals("PASS") ? "&#10003; PASS" :
-                                      row.verdict.equals("WARN") ? "&#9888; WARN" : "&#10007; FAIL";
-            %>
-                <tr style="background:<%= rowColor %>;border-bottom:1px solid #1e293b;">
-                    <td style="padding:8px;color:#f8fafc;"><%= row.indicator %></td>
-                    <td style="padding:8px;text-align:right;font-weight:700;color:#fff;"><%= String.format("%.2f", row.actual) %> <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span></td>
-                    <td style="padding:8px;text-align:right;font-weight:700;color:#38bdf8;"><%= String.format("%.2f", row.simulated) %> <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span></td>
-                    <td style="padding:8px;text-align:right;color:<%= verdictColor %>;"><%= String.format("%.1f", row.errorPct) %>%%</td>
-                    <td style="padding:8px;text-align:center;font-weight:700;color:<%= verdictColor %>;font-size:0.8rem;"><%= verdictIcon %></td>
-                </tr>
-            <% } %>
-            </tbody>
-        </table>
-        <div style="margin-top:14px;font-size:0.75rem;color:#64748b;">
-            PASS = error &le;5%% &bull; WARN = error &le;15%% &bull; FAIL = error &gt;15%% &bull; Sources: CSO First Advance Estimate, RBI Annual Report, CMIE PLFS, BSE
-        </div>
-        <div style="text-align:right;margin-top:14px;">
-            <button onclick="document.getElementById('realityModalOverlay').style.display='none'" style="background:#475569;color:#fff;border:none;border-radius:5px;padding:7px 18px;font-weight:700;cursor:pointer;">Close</button>
-        </div>
-    </div>
-</div>
-<% } %>
-
-<!-- 5. TIME MACHINE BACKTEST RESULT MODAL -->
-<%
-    String tmMessage = (String) request.getAttribute("tmMessage");
-    BacktestResult timeMachineResult = (BacktestResult) request.getAttribute("timeMachineResult");
-%>
-<% if (tmMessage != null) { %>
-<div id="tmToast" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid #7c3aed;border-radius:8px;padding:12px 22px;z-index:10003;font-size:0.87rem;box-shadow:0 8px 24px rgba(0,0,0,0.7);max-width:600px;text-align:center;">
-    <%= tmMessage %>
-    <span onclick="document.getElementById('tmToast').style.display='none'" style="margin-left:14px;cursor:pointer;color:var(--muted);font-size:1rem;">&#x2715;</span>
-</div>
-<% } %>
-
-<% if (timeMachineResult != null) { %>
-<div id="tmModalOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.78);z-index:10002;align-items:center;justify-content:center;">
-    <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #0891b2;border-radius:10px;width:820px;max-width:95%;max-height:88vh;overflow-y:auto;padding:22px;box-shadow:0 15px 40px rgba(0,0,0,0.9);">
-
-        <h3 style="margin-top:0;color:#0891b2;font-size:1.05rem;">
-            ⏳ Time Machine Backtest — <%= timeMachineResult.baselineYear %> &rarr; <%= timeMachineResult.targetYear %>
-        </h3>
-
-        <div style="background:rgba(8,145,178,0.1);border-left:4px solid #0891b2;padding:10px 14px;border-radius:5px;margin-bottom:16px;font-size:0.83rem;line-height:1.5;">
-            <%= timeMachineResult.summary %>
-        </div>
-
-        <!-- Accuracy score bar -->
-        <%
-            double acc = timeMachineResult.meanAccuracyPct;
-            String accColor = acc >= 90 ? "#22c55e" : acc >= 75 ? "#fbbf24" : "#ef4444";
-        %>
-        <div style="margin-bottom:16px;">
-            <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin-bottom:4px;">
-                <span>Mean Model Accuracy</span>
-                <span style="font-weight:700;color:<%= accColor %>;"><%= String.format("%.1f", acc) %>%</span>
-            </div>
-            <div style="background:#1e293b;border-radius:99px;height:8px;overflow:hidden;">
-                <div style="height:100%;width:<%= Math.max(0, Math.min(100, acc)) %>%;background:<%= accColor %>;border-radius:99px;transition:width 0.5s;"></div>
-            </div>
-        </div>
-
-        <!-- Per-indicator rows -->
-        <table style="width:100%;border-collapse:collapse;font-size:0.84rem;">
-            <thead>
-                <tr style="background:#1e293b;">
-                    <th style="padding:9px;text-align:left;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Indicator</th>
-                    <th style="padding:9px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">World Bank Actual</th>
-                    <th style="padding:9px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Simulated</th>
-                    <th style="padding:9px;text-align:right;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Abs. Error</th>
-                    <th style="padding:9px;text-align:center;color:#94a3b8;font-size:0.75rem;text-transform:uppercase;">Verdict</th>
-                </tr>
-            </thead>
-            <tbody>
-            <% for (BacktestResult.IndicatorResult row : timeMachineResult.rows) {
-                String rowBg   = "PASS".equals(row.verdict) ? "rgba(34,197,94,0.07)" :
-                                 "WARN".equals(row.verdict) ? "rgba(251,191,36,0.07)" : "rgba(239,68,68,0.07)";
-                String vColor  = "PASS".equals(row.verdict) ? "#22c55e" :
-                                 "WARN".equals(row.verdict) ? "#fbbf24" : "#ef4444";
-                String vIcon   = "PASS".equals(row.verdict) ? "&#10003; PASS" :
-                                 "WARN".equals(row.verdict) ? "&#9888; WARN" : "&#10007; FAIL";
-            %>
-                <tr style="background:<%= rowBg %>;border-bottom:1px solid #1e293b;">
-                    <td style="padding:9px;color:#f8fafc;">
-                        <%= row.indicatorName %>
-                        <div style="font-size:0.72rem;color:#64748b;margin-top:1px;"><%= row.note %></div>
-                    </td>
-                    <td style="padding:9px;text-align:right;font-weight:700;color:#fff;">
-                        <%= String.format("%.2f", row.actualValue) %>
-                        <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span>
-                    </td>
-                    <td style="padding:9px;text-align:right;font-weight:700;color:#38bdf8;">
-                        <%= String.format("%.2f", row.simulatedValue) %>
-                        <span style="color:#64748b;font-size:0.75rem;"><%= row.unit %></span>
-                    </td>
-                    <td style="padding:9px;text-align:right;color:<%= vColor %>;font-weight:700;">
-                        <%= String.format("%.1f", row.absoluteErrorPct) %>%%
-                    </td>
-                    <td style="padding:9px;text-align:center;font-weight:700;color:<%= vColor %>;font-size:0.8rem;">
-                        <%= vIcon %>
-                    </td>
-                </tr>
-            <% } %>
-            </tbody>
-        </table>
-
-        <div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">
-            <div style="font-size:0.73rem;color:#64748b;line-height:1.5;">
-                Source: World Bank Open Data API v2 &bull;
-                PASS&nbsp;&#8804;&nbsp;5%% error &bull; WARN&nbsp;&#8804;&nbsp;15%% &bull; FAIL&nbsp;&gt;&nbsp;15%%<br>
-                Note: WB uses ILO modelled unemployment estimates which differ from CMIE/PLFS figures used in engine calibration.
-            </div>
-            <button onclick="document.getElementById('tmModalOverlay').style.display='none'"
-                    style="background:#475569;color:#fff;border:none;border-radius:5px;padding:7px 18px;font-weight:700;cursor:pointer;white-space:nowrap;margin-left:16px;">
-                Close
-            </button>
-        </div>
-    </div>
-</div>
-<% } %>
-
-<!-- 6. DYNAMIC WORLD BANK BACKTEST RESULT MODAL -->
-<%
-    String dynMessage = (String) request.getAttribute("dynMessage");
-    BacktestResult dynamicBacktestResult = (BacktestResult) request.getAttribute("dynamicBacktestResult");
-%>
-<% if (dynMessage != null) { %>
-<div id="dynToast" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;border:1px solid #059669;border-radius:8px;padding:12px 22px;z-index:10003;font-size:0.87rem;box-shadow:0 8px 24px rgba(0,0,0,0.7);max-width:640px;text-align:center;">
-    <%= dynMessage %>
-    <span onclick="document.getElementById('dynToast').style.display='none'" style="margin-left:14px;cursor:pointer;color:var(--muted);font-size:1rem;">&#x2715;</span>
-</div>
-<% } %>
-
-<% if (dynamicBacktestResult != null) {
-    double dynAcc = dynamicBacktestResult.meanAccuracyPct;
-    String dynAccColor = dynAcc >= 85 ? "#22c55e" : dynAcc >= 70 ? "#fbbf24" : "#ef4444";
-%>
-<div id="dynModalOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:10002;align-items:center;justify-content:center;">
-  <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #059669;border-radius:12px;width:860px;max-width:96%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.95);">
-
-    <!-- Header -->
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
-      <div>
-        <h3 style="margin:0 0 4px;color:#059669;font-size:1.1rem;">
-            🌍 Dynamic World Bank Backtest — <%= dynamicBacktestResult.baselineYear %> → <%= dynamicBacktestResult.targetYear %>
-        </h3>
-        <div style="font-size:0.78rem;color:var(--muted);">
-            Seeded from real WB data for <strong style="color:var(--text);"><%= dynamicBacktestResult.baselineYear %></strong> &bull;
-            Simulated 4 quarters &bull;
-            Compared vs real WB data for <strong style="color:var(--text);"><%= dynamicBacktestResult.targetYear %></strong>
-        </div>
-      </div>
-      <button onclick="document.getElementById('dynModalOverlay').style.display='none'" style="background:#334155;color:#fff;border:none;border-radius:5px;padding:6px 14px;cursor:pointer;font-weight:700;flex-shrink:0;margin-left:16px;">✕ Close</button>
-    </div>
-
-    <!-- Summary banner -->
-    <div style="background:rgba(5,150,105,0.1);border-left:4px solid #059669;padding:10px 14px;border-radius:5px;margin-bottom:16px;font-size:0.82rem;line-height:1.5;">
-        <%= dynamicBacktestResult.summary %>
-    </div>
-
-    <!-- Accuracy bar -->
-    <div style="margin-bottom:16px;">
-        <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin-bottom:5px;">
-            <span>Overall Model Accuracy (vs World Bank ground truth)</span>
-            <span style="font-weight:800;font-size:0.95rem;color:<%= dynAccColor %>;"><%= String.format("%.1f", dynAcc) %>%</span>
-        </div>
-        <div style="background:#1e293b;border-radius:99px;height:10px;overflow:hidden;">
-            <div style="height:100%;width:<%= Math.max(0, Math.min(100, dynAcc)) %>%;background:<%= dynAccColor %>;border-radius:99px;"></div>
-        </div>
-        <div style="display:flex;gap:16px;margin-top:6px;font-size:0.74rem;color:var(--muted);">
-            <span>✅ PASS (≤5% err): <strong style="color:#22c55e;"><%= dynamicBacktestResult.passCount %></strong></span>
-            <span>⚠️ WARN (≤15%): <strong style="color:#fbbf24;"><%= dynamicBacktestResult.warnCount %></strong></span>
-            <span>❌ FAIL (>15%): <strong style="color:#ef4444;"><%= dynamicBacktestResult.failCount %></strong></span>
-        </div>
-    </div>
-
-    <!-- Comparison table -->
-    <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
-        <thead>
-            <tr style="background:#1e293b;">
-                <th style="padding:9px 10px;text-align:left;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Indicator</th>
-                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">WB Actual (<%= dynamicBacktestResult.targetYear %>)</th>
-                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Simulated</th>
-                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Diff</th>
-                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Error</th>
-                <th style="padding:9px 10px;text-align:center;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Verdict</th>
-            </tr>
-        </thead>
-        <tbody>
-        <% for (BacktestResult.IndicatorResult row : dynamicBacktestResult.rows) {
-            String rbg  = "PASS".equals(row.verdict) ? "rgba(34,197,94,0.06)"  :
-                          "WARN".equals(row.verdict) ? "rgba(251,191,36,0.06)" : "rgba(239,68,68,0.06)";
-            String rclr = "PASS".equals(row.verdict) ? "#22c55e" :
-                          "WARN".equals(row.verdict) ? "#fbbf24" : "#ef4444";
-            String rico = "PASS".equals(row.verdict) ? "✅" :
-                          "WARN".equals(row.verdict) ? "⚠️" : "❌";
-            double diff = row.simulatedValue - row.actualValue;
-        %>
-            <tr style="background:<%= rbg %>;border-bottom:1px solid #1e293b;">
-                <td style="padding:9px 10px;">
-                    <div style="color:#f8fafc;font-weight:600;"><%= row.indicatorName %></div>
-                    <div style="font-size:0.7rem;color:#64748b;margin-top:1px;"><%= row.note %></div>
-                </td>
-                <td style="padding:9px 10px;text-align:right;font-weight:700;color:#fff;font-variant-numeric:tabular-nums;">
-                    <%= String.format("%.2f", row.actualValue) %>
-                    <span style="color:#475569;font-size:0.74rem;"> <%= row.unit %></span>
-                </td>
-                <td style="padding:9px 10px;text-align:right;font-weight:700;color:#38bdf8;font-variant-numeric:tabular-nums;">
-                    <%= String.format("%.2f", row.simulatedValue) %>
-                    <span style="color:#475569;font-size:0.74rem;"> <%= row.unit %></span>
-                </td>
-                <td style="padding:9px 10px;text-align:right;color:<%= diff >= 0 ? "#22c55e" : "#ef4444" %>;font-weight:600;font-variant-numeric:tabular-nums;">
-                    <%= diff >= 0 ? "+" : "" %><%= String.format("%.2f", diff) %>
-                </td>
-                <td style="padding:9px 10px;text-align:right;color:<%= rclr %>;font-weight:700;">
-                    <%= String.format("%.1f", row.absoluteErrorPct) %>%%
-                </td>
-                <td style="padding:9px 10px;text-align:center;font-size:1rem;" title="<%= row.verdict %>">
-                    <%= rico %>
-                </td>
-            </tr>
-        <% } %>
-        </tbody>
-    </table>
-
-    <div style="margin-top:14px;font-size:0.72rem;color:#475569;line-height:1.6;">
-        <strong style="color:#64748b;">Data sources:</strong>
-        WB NY.GDP.MKTP.KD.ZG (GDP growth) &bull; FP.CPI.TOTL.ZG (CPI) &bull; SL.UEM.TOTL.ZS (unemployment, ILO modelled) &bull;
-        PA.NUS.FCRF (FX) &bull; NE.EXP.GNFS.CD (exports) &bull; BN.CAB.XOKA.GD.ZS (current account) &bull;
-        GC.DOD.TOTL.GD.ZS (govt debt) &bull; FR.INR.LEND (lending rate)<br>
-        <em>Note: WB ILO unemployment estimates are typically 2–3pp higher than CMIE/PLFS figures — this creates structural divergence on that indicator.</em>
-    </div>
-
-  </div>
-</div>
-<% } %>
-
-<!-- 7. LOAD YEAR MESSAGE TOAST -->
 <%
     String loadYearMsg = (String) request.getAttribute("loadYearMsg");
 %>
@@ -1312,7 +877,6 @@ const indicatorReasons = {
 </div>
 <% } %>
 
-<!-- 8. DYNAMIC REALITY CHECK RESULT MODAL -->
 <%
     RealityCheckService.RealityCheckResult dynRealityResult =
         (RealityCheckService.RealityCheckResult) request.getAttribute("dynRealityResult");
@@ -1323,28 +887,25 @@ const indicatorReasons = {
     String drAccColor = drAcc >= 85 ? "#22c55e" : drAcc >= 70 ? "#fbbf24" : "#ef4444";
 %>
 <div id="dynRealityOverlay" onclick="this.style.display='none'" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:10002;align-items:center;justify-content:center;">
-  <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #b45309;border-radius:12px;width:860px;max-width:96%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.95);">
+  <div onclick="event.stopPropagation()" style="background:#0f172a;border:2px solid #0d9488;border-radius:12px;width:860px;max-width:96%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.95);">
 
-    <!-- Header -->
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
       <div>
-        <h3 style="margin:0 0 4px;color:#b45309;font-size:1.1rem;">
-            🔬 Dynamic Reality Check — Your Simulation vs WB Actuals <%= dynRealityYear != null ? "(" + dynRealityYear + ")" : "" %>
+        <h3 style="margin:0 0 4px;color:#0d9488;font-size:1.1rem;">
+            🔬 Check With Reality — Simulated vs World Bank Actuals <%= dynRealityYear != null ? "(" + dynRealityYear + ")" : "" %>
         </h3>
         <div style="font-size:0.78rem;color:var(--muted);">
-            Compares your <strong style="color:var(--text);">simulated</strong> economy against real
-            <strong style="color:var(--text);">World Bank</strong> data for the same year
+            Compares your <strong style="color:var(--text);">simulated</strong> economy for the current year against real
+            <strong style="color:var(--text);">World Bank</strong> data for the exact same year.
         </div>
       </div>
       <button onclick="document.getElementById('dynRealityOverlay').style.display='none'" style="background:#334155;color:#fff;border:none;border-radius:5px;padding:6px 14px;cursor:pointer;font-weight:700;flex-shrink:0;margin-left:16px;">✕ Close</button>
     </div>
 
-    <!-- Summary banner -->
-    <div style="background:rgba(180,83,9,0.1);border-left:4px solid #b45309;padding:10px 14px;border-radius:5px;margin-bottom:16px;font-size:0.82rem;line-height:1.5;">
+    <div style="background:rgba(13,148,136,0.1);border-left:4px solid #0d9488;padding:10px 14px;border-radius:5px;margin-bottom:16px;font-size:0.82rem;line-height:1.5;">
         <%= dynRealityResult.summary %>
     </div>
 
-    <!-- Accuracy bar -->
     <div style="margin-bottom:16px;">
         <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:var(--muted);margin-bottom:5px;">
             <span>Mean Model Accuracy (your simulation vs World Bank ground truth)</span>
@@ -1363,12 +924,11 @@ const indicatorReasons = {
         </div>
     </div>
 
-    <!-- Comparison table -->
     <table style="width:100%;border-collapse:collapse;font-size:0.83rem;">
         <thead>
             <tr style="background:#1e293b;">
                 <th style="padding:9px 10px;text-align:left;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Indicator</th>
-                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">WB Actual</th>
+                <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">WB Actual (<%= dynRealityYear %>)</th>
                 <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Your Simulation</th>
                 <th style="padding:9px 10px;text-align:right;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Error %</th>
                 <th style="padding:9px 10px;text-align:center;color:#94a3b8;font-size:0.72rem;text-transform:uppercase;border-bottom:1px solid #334155;">Verdict</th>
@@ -1405,7 +965,7 @@ const indicatorReasons = {
     </table>
 
     <div style="margin-top:14px;font-size:0.72rem;color:#475569;line-height:1.6;">
-        PASS = error &le;5%% &bull; WARN = error &le;15%% &bull; FAIL &gt;15%% &bull;
+        PASS = error &le;5% &bull; WARN = error &le;15% &bull; FAIL &gt;15% &bull;
         Source: World Bank Open Data API v2 &bull;
         ILO unemployment estimates may be 2–3pp higher than CMIE/PLFS, creating structural divergence on that indicator.
     </div>
@@ -1417,7 +977,6 @@ const indicatorReasons = {
 </div>
 <% } %>
 
-<!-- 3. EDIT INDICATOR MODAL (manual override for backtesting) -->
 <div id="editModalOverlay" onclick="closeEditModal()">
     <div class="edit-modal" onclick="event.stopPropagation()">
         <h3>✏️ Override Indicator Value</h3>
@@ -1430,7 +989,6 @@ const indicatorReasons = {
         </div>
     </div>
 </div>
-<!-- Hidden form for edit-indicator POST -->
 <form id="editIndicatorForm" action="<%= request.getContextPath() %>/simulate" method="post" style="display:none">
     <input type="hidden" name="action" value="editIndicator">
     <input type="hidden" id="editActiveTab" name="activeTab" value="<%= activeTab %>">
@@ -1439,7 +997,6 @@ const indicatorReasons = {
 </form>
 
 <script>
-    // ── Edit Indicator Modal ──────────────────────────────────────────────────
     function openEditModal(fieldKey, label, currentVal, unit) {
         document.getElementById('editModalDesc').innerText = label + '  (current: ' + currentVal + (unit ? ' ' + unit : '') + ')';
         document.getElementById('editModalInput').value = currentVal;
